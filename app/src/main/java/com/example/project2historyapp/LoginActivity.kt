@@ -1,6 +1,8 @@
 package com.example.project2historyapp
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,12 +16,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,16 +32,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
+import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FirebaseApp.initializeApp(this)
+        val app = FirebaseApp.getInstance()
+        Log.d("FBINit", "Firebase initialized: ${app.name}")
         enableEdgeToEdge()
         setContent {
             Project2HistoryAppTheme {
@@ -56,6 +68,10 @@ fun Login(modifier: Modifier = Modifier) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var loginRequested by remember { mutableStateOf(false) }
+    var registerRequested by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Column(
         modifier = modifier.fillMaxSize()
@@ -105,10 +121,13 @@ fun Login(modifier: Modifier = Modifier) {
             )
         }
         Button(
-            onClick = {},
+            onClick = {
+                loginRequested = true
+            },
             colors = ButtonColors(Color.Black, Color.White, Color.DarkGray, Color.LightGray),
             shape = RectangleShape,
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(20.dp),
+            enabled = email.isNotBlank() && password.isNotBlank(),
         ) {
             Text("Login")
         }
@@ -117,9 +136,44 @@ fun Login(modifier: Modifier = Modifier) {
             onClick = {},
             colors = ButtonColors(Color.Black, Color.White, Color.DarkGray, Color.LightGray),
             shape = RectangleShape,
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(20.dp),
+            enabled = email.isNotBlank() && password.isNotBlank(),
         ) {
             Text("Sign Up")
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator()
+        }
+
+        LaunchedEffect(loginRequested) {
+            if (loginRequested) {
+                isLoading = true
+                try {
+                    AuthRepository.login(email, password)
+                    val intent = Intent(context, MainMenuActivity::class.java)
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Log.d("AUTH", e.message.toString())
+                } finally {
+                    loginRequested = false
+                    isLoading=false
+                }
+            }
+        }
+
+        LaunchedEffect(registerRequested) {
+            if (registerRequested) {
+                isLoading = true
+                try {
+                    AuthRepository.register(email, password)
+                } catch (e: Exception) {
+                    Log.d("AUTH", e.message.toString())
+                } finally {
+                    registerRequested = false
+                    isLoading = false
+                }
+            }
         }
     }
 }
