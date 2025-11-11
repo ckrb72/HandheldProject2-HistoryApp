@@ -8,6 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,8 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -73,107 +77,118 @@ fun Login(modifier: Modifier = Modifier) {
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    Column(
-        modifier = modifier.fillMaxSize()
-            .background(Color.Gray),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(R.drawable.ancient_earth_globe_stockcake),
-            contentDescription = "Image of Globe",
-            modifier = Modifier.padding(20.dp)
-        )
-
         Column(
-            modifier = Modifier.padding(10.dp)
+            modifier = modifier.fillMaxSize()
+                .paint(
+                    painter = painterResource(R.drawable.vertical_globe),
+                    contentScale = ContentScale.FillBounds
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            OutlinedTextField(
-                value = email,
-                placeholder = { Text("Email") },
-                onValueChange = {newVal -> email = newVal},
-                shape = RectangleShape,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedPlaceholderColor = Color.White,
-                    unfocusedPlaceholderColor = Color.White,
-                    unfocusedContainerColor = Color.Black,
-                    focusedContainerColor = Color.DarkGray,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
+//        Image(
+//            painter = painterResource(R.drawable.ancient_earth_globe_stockcake),
+//            contentDescription = "Image of Globe",
+//            modifier = Modifier.padding(20.dp)
+//        )
+
+            Column(
+                modifier = Modifier.padding(10.dp)
+            ) {
+                OutlinedTextField(
+                    value = email,
+                    placeholder = { Text("Email") },
+                    onValueChange = {newVal -> email = newVal},
+                    shape = RectangleShape,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.White,
+                        unfocusedPlaceholderColor = Color.White,
+                        unfocusedContainerColor = Color(0.204f, 0.408f, 0.357f, 0.827f),
+                        focusedContainerColor = Color(0.596f, 0.808f, 0.757f, 0.827f),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                    )
                 )
-            )
 
-            Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(10.dp))
 
-            OutlinedTextField(
-                value = password,
-                placeholder = { Text("Password") },
-                onValueChange = {newVal -> password = newVal},
-                shape = RectangleShape,
-                visualTransformation = PasswordVisualTransformation(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedPlaceholderColor = Color.White,
-                    unfocusedPlaceholderColor = Color.White,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    unfocusedContainerColor = Color.Black,
-                    focusedContainerColor = Color.DarkGray
+                OutlinedTextField(
+                    value = password,
+                    placeholder = { Text("Password") },
+                    onValueChange = {newVal -> password = newVal},
+                    shape = RectangleShape,
+                    visualTransformation = PasswordVisualTransformation(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.White,
+                        unfocusedPlaceholderColor = Color.White,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        unfocusedContainerColor = Color(0.204f, 0.408f, 0.357f, 0.827f),
+                        focusedContainerColor =  Color(0.596f, 0.808f, 0.757f, 0.827f)
+                    )
                 )
-            )
-        }
-        Button(
-            onClick = {
-                loginRequested = true
-            },
-            colors = ButtonColors(Color.Black, Color.White, Color.DarkGray, Color.LightGray),
-            shape = RectangleShape,
-            modifier = Modifier.padding(20.dp),
-            enabled = email.isNotBlank() && password.isNotBlank(),
-        ) {
-            Text("Login")
-        }
+            }
+            Button(
+                onClick = {
+                    loginRequested = true
+                },
+                colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                shape = RectangleShape,
+                modifier = Modifier.padding(20.dp),
+                enabled = email.isNotBlank() && password.isNotBlank(),
+            ) {
+                Text("Login")
+            }
 
-        Button(
-            onClick = {},
-            colors = ButtonColors(Color.Black, Color.White, Color.DarkGray, Color.LightGray),
-            shape = RectangleShape,
-            modifier = Modifier.padding(20.dp),
-            enabled = email.isNotBlank() && password.isNotBlank(),
-        ) {
-            Text("Sign Up")
+            Button(
+                onClick = {},
+                colors = ButtonColors(Color(0.549f, 0.424f, 0.282f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                shape = RectangleShape,
+                modifier = Modifier.padding(20.dp),
+                enabled = email.isNotBlank() && password.isNotBlank(),
+            ) {
+                Text("Sign Up")
+            }
+
+            LaunchedEffect(loginRequested) {
+                if (loginRequested) {
+                    isLoading = true
+                    try {
+                        AuthRepository.login(email, password)
+                        val intent = Intent(context, MainMenuActivity::class.java)
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        Log.d("AUTH", e.message.toString())
+                    } finally {
+                        loginRequested = false
+                        isLoading=false
+                    }
+                }
+            }
+
+            LaunchedEffect(registerRequested) {
+                if (registerRequested) {
+                    isLoading = true
+                    try {
+                        AuthRepository.register(email, password)
+                    } catch (e: Exception) {
+                        Log.d("AUTH", e.message.toString())
+                    } finally {
+                        registerRequested = false
+                        isLoading = false
+                    }
+                }
+            }
         }
 
         if (isLoading) {
-            CircularProgressIndicator()
-        }
-
-        LaunchedEffect(loginRequested) {
-            if (loginRequested) {
-                isLoading = true
-                try {
-                    AuthRepository.login(email, password)
-                    val intent = Intent(context, MainMenuActivity::class.java)
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    Log.d("AUTH", e.message.toString())
-                } finally {
-                    loginRequested = false
-                    isLoading=false
-                }
-            }
-        }
-
-        LaunchedEffect(registerRequested) {
-            if (registerRequested) {
-                isLoading = true
-                try {
-                    AuthRepository.register(email, password)
-                } catch (e: Exception) {
-                    Log.d("AUTH", e.message.toString())
-                } finally {
-                    registerRequested = false
-                    isLoading = false
-                }
-            }
+            CircularProgressIndicator(
+                color = Color(1.0f, 0.718f, 0.0f, 1.0f),
+                strokeWidth = 8.dp
+            )
         }
     }
 }
