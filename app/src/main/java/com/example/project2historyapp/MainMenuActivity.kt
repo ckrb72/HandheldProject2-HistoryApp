@@ -31,14 +31,16 @@ class MainMenuActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Project2HistoryAppTheme {
-                MyMap()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    MyMap(Modifier.padding(innerPadding))
+                }
             }
         }
     }
 }
 
 @Composable
-fun MyMap() {
+fun MyMap(modifier: Modifier = Modifier) {
     val staffordVA = LatLng(38.4221, -77.4083)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(staffordVA, 10f)
@@ -50,7 +52,7 @@ fun MyMap() {
     val mapStyle = remember { MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style) }
 
     GoogleMap(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState,
         properties = MapProperties(mapStyleOptions = mapStyle)  // From Google Maps Documentation
     ) {
@@ -65,17 +67,9 @@ fun MyMap() {
 
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun MapPreview() {
     Project2HistoryAppTheme {
         MyMap()
     }

@@ -1,0 +1,159 @@
+package com.example.project2historyapp
+
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
+
+class RegisterActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            Project2HistoryAppTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Register(
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Register(modifier: Modifier = Modifier) {
+
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmedPassword by remember { mutableStateOf("") }
+    var registerRequested by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    Column(
+        modifier = modifier.fillMaxSize()
+            .paint(
+                painter = painterResource(R.drawable.vertical_globe),
+                contentScale = ContentScale.FillBounds
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Column(
+            modifier = Modifier.padding(10.dp)
+        ) {
+            OutlinedTextField(
+                value = email,
+                placeholder = { Text("Email") },
+                onValueChange = {newVal -> email = newVal},
+                shape = RectangleShape,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White,
+                    unfocusedContainerColor = Color(0.204f, 0.408f, 0.357f, 0.827f),
+                    focusedContainerColor = Color(0.596f, 0.808f, 0.757f, 0.827f),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                )
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            OutlinedTextField(
+                value = password,
+                placeholder = { Text("Password") },
+                onValueChange = {newVal -> password = newVal},
+                shape = RectangleShape,
+                visualTransformation = PasswordVisualTransformation(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    unfocusedContainerColor = Color(0.204f, 0.408f, 0.357f, 0.827f),
+                    focusedContainerColor =  Color(0.596f, 0.808f, 0.757f, 0.827f)
+                )
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            OutlinedTextField(
+                value = confirmedPassword,
+                placeholder = { Text("Confirm Password") },
+                onValueChange = {newVal -> confirmedPassword = newVal},
+                shape = RectangleShape,
+                visualTransformation = PasswordVisualTransformation(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color.White,
+                    unfocusedPlaceholderColor = Color.White,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    unfocusedContainerColor = Color(0.204f, 0.408f, 0.357f, 0.827f),
+                    focusedContainerColor =  Color(0.596f, 0.808f, 0.757f, 0.827f)
+                )
+            )
+        }
+
+        Button(
+            onClick = {
+
+            },
+            colors = ButtonColors(Color(0.549f, 0.424f, 0.282f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+            shape = RectangleShape,
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Text("Register")
+        }
+
+        Button(
+            onClick = {
+                val intent = Intent(context, MainActivity::class.java)
+                context.startActivity(intent)
+            },
+            colors = ButtonColors(Color(0.549f, 0.424f, 0.282f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+            shape = RectangleShape,
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Text("Back")
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview2() {
+    Project2HistoryAppTheme {
+        Register()
+    }
+}

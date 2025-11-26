@@ -89,12 +89,6 @@ fun Login(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-//        Image(
-//            painter = painterResource(R.drawable.ancient_earth_globe_stockcake),
-//            contentDescription = "Image of Globe",
-//            modifier = Modifier.padding(20.dp)
-//        )
-
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {
@@ -144,11 +138,13 @@ fun Login(modifier: Modifier = Modifier) {
             }
 
             Button(
-                onClick = {},
+                onClick = {
+                    val intent = Intent(context, RegisterActivity::class.java);
+                    context.startActivity(intent)
+                },
                 colors = ButtonColors(Color(0.549f, 0.424f, 0.282f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
                 shape = RectangleShape,
-                modifier = Modifier.padding(20.dp),
-                enabled = email.isNotBlank() && password.isNotBlank(),
+                modifier = Modifier.padding(20.dp)
             ) {
                 Text("Sign Up")
             }
