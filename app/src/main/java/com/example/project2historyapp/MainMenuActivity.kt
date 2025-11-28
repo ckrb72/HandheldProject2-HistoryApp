@@ -2,6 +2,7 @@ package com.example.project2historyapp
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -61,7 +62,11 @@ class MainMenuActivity : ComponentActivity() {
         setContent {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MyMap(Modifier.padding(innerPadding))
+                    val user = intent.getStringExtra("EMAIL")
+                    user?.let {
+                        MyMap(user, Modifier.padding(innerPadding))
+                    }
+                    MyMap("UNDEFINED_USER", Modifier.padding(innerPadding))
                 }
             }
         }
@@ -69,7 +74,7 @@ class MainMenuActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyMap(modifier: Modifier = Modifier) {
+fun MyMap(user: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val staffordVA = LatLng(38.4221, -77.4083)
     var markerPosition by remember { mutableStateOf<LatLng?>(staffordVA) }
@@ -191,6 +196,6 @@ suspend fun getAddressGeocodeCurrent(context: android.content.Context, latLng: L
 @Composable
 fun MapPreview() {
     Project2HistoryAppTheme {
-        MyMap()
+        MyMap("UNDEFINED_USER")
     }
 }

@@ -1,6 +1,7 @@
 package com.example.project2historyapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +18,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -24,11 +26,17 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
+import com.google.firebase.FirebaseApp
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class SavedLocationsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +45,8 @@ class SavedLocationsActivity : ComponentActivity() {
         setContent {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
+                    SavedLocations(
+                        "Ciaran",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -47,7 +56,25 @@ class SavedLocationsActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(modifier: Modifier = Modifier) {
+fun SavedLocations(user: String, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+
+    remember {
+        val dbRef = FirebaseDatabase.getInstance().getReference("users/$user/locations")
+
+        dbRef.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!snapshot.exists()) {
+                    Toast.makeText(context, "No Database Data Found", Toast.LENGTH_SHORT).show()
+                    return
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "No Data Found", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -92,11 +119,10 @@ fun LocationCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview3() {
     Project2HistoryAppTheme {
-        Greeting()
+        SavedLocations("Ciaran")
     }
 }

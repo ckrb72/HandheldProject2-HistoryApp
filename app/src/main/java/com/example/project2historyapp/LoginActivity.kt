@@ -209,6 +209,7 @@ fun Login(modifier: Modifier = Modifier) {
                 error = null
                 AuthRepository.login(email, password)
                 val intent = Intent(context, MainMenuActivity::class.java)
+                intent.putExtra("EMAIL", email)
                 context.startActivity(intent)
             } catch (e: Exception) {
                 error = e.message
