@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -40,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
@@ -73,8 +76,8 @@ fun Login(modifier: Modifier = Modifier) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loginRequested by remember { mutableStateOf(false) }
-    var registerRequested by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
 
     Box(
@@ -148,35 +151,15 @@ fun Login(modifier: Modifier = Modifier) {
             ) {
                 Text("Sign Up")
             }
-
-            LaunchedEffect(loginRequested) {
-                if (loginRequested) {
-                    isLoading = true
-                    try {
-                        AuthRepository.login(email, password)
-                        val intent = Intent(context, MainMenuActivity::class.java)
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        Log.d("AUTH", e.message.toString())
-                    } finally {
-                        loginRequested = false
-                        isLoading=false
-                    }
-                }
-            }
-
-            LaunchedEffect(registerRequested) {
-                if (registerRequested) {
-                    isLoading = true
-                    try {
-                        AuthRepository.register(email, password)
-                    } catch (e: Exception) {
-                        Log.d("AUTH", e.message.toString())
-                    } finally {
-                        registerRequested = false
-                        isLoading = false
-                    }
-                }
+        }
+        error?.let {
+            Spacer(Modifier.height(8.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(0.75f),
+                colors = CardColors(Color(0.824f, 0.169f, 0.169f, 1.0f), Color(0.204f, 0.408f, 0.357f, 0.827f), Color(0.204f, 0.408f, 0.357f, 0.827f), Color(0.204f, 0.408f, 0.357f, 0.827f)),
+                shape = RectangleShape
+            ) {
+                Text(it, color = Color.White, textAlign = TextAlign.Center)
             }
         }
 
@@ -185,6 +168,23 @@ fun Login(modifier: Modifier = Modifier) {
                 color = Color(1.0f, 0.718f, 0.0f, 1.0f),
                 strokeWidth = 8.dp
             )
+        }
+    }
+    LaunchedEffect(loginRequested) {
+        if (loginRequested) {
+            isLoading = true
+            try {
+                error = null
+                AuthRepository.login(email, password)
+                val intent = Intent(context, MainMenuActivity::class.java)
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                error = e.message
+                Log.d("AUTH", e.message.toString())
+            } finally {
+                loginRequested = false
+                isLoading=false
+            }
         }
     }
 }
