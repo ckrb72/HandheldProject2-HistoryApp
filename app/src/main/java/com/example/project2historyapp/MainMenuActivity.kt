@@ -1,12 +1,18 @@
 package com.example.project2historyapp
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -27,12 +33,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
@@ -60,6 +70,7 @@ class MainMenuActivity : ComponentActivity() {
 
 @Composable
 fun MyMap(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     val staffordVA = LatLng(38.4221, -77.4083)
     var markerPosition by remember { mutableStateOf<LatLng?>(staffordVA) }
     val cameraPositionState = rememberCameraPositionState {
@@ -67,11 +78,24 @@ fun MyMap(modifier: Modifier = Modifier) {
     }
     var isLoading by remember { mutableStateOf(false) }
     var addressInfo by remember { mutableStateOf("Long Click on Map") }
-
-    val context = LocalContext.current
-
     // Map Style JSON and code from Google Maps Documentation
     val mapStyle = remember { MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style) }
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            useCurrentLocation(context) { latLng ->
+                markerPosition = latLng
+            }
+        }
+    }
+
+    // Check if the location permission is granted, if not, request it
+    LaunchedEffect(Unit) {
+        if (!checkLocationPermission(context)) {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
 
     Box(
         contentAlignment = Alignment.Center
@@ -114,6 +138,23 @@ fun MyMap(modifier: Modifier = Modifier) {
             }
             isLoading = false
             Log.d("Address", addressInfo)
+        }
+    }
+}
+
+fun checkLocationPermission(context: Context): Boolean {
+    return ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+}
+
+fun useCurrentLocation(context: Context, onLocationResult: (LatLng) -> Unit) {
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    val cancellationTokenSource = CancellationTokenSource()
+
+    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.token).addOnSuccessListener{ location ->
+        if (location != null) {
+            onLocationResult(LatLng(location.latitude, location.longitude))
+        } else {
+            onLocationResult(LatLng(38.4221, -77.4083))
         }
     }
 }
