@@ -3,4 +3,5 @@
     <string name="title_activity_main_menu">MainMenuActivity</string>
     <string name="title_activity_statistics">StatisticsActivity</string>
     <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_saved_locations">SavedLocationsActivity</string>
 </resources>
