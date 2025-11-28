@@ -1,5 +1,6 @@
 package com.example.project2historyapp
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +26,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
@@ -45,6 +49,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
 import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -73,13 +78,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Login(modifier: Modifier = Modifier) {
 
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
     var loginRequested by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
-
+    val prefs = remember { context.getSharedPreferences("history_prefs", Context.MODE_PRIVATE) }
+    var saveLoginInfo by remember { mutableStateOf(prefs.getBoolean("saveLogin", false)) }
+    var email by remember { mutableStateOf( if (saveLoginInfo) prefs.getString("savedEmail", "").toString() else "") }
+    var password by remember { mutableStateOf(if (saveLoginInfo) prefs.getString("savedPassword", "").toString() else "") }
     Box(
         contentAlignment = Alignment.Center
     ) {
@@ -93,7 +99,8 @@ fun Login(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Column(
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
                     value = email,
@@ -127,10 +134,35 @@ fun Login(modifier: Modifier = Modifier) {
                         focusedContainerColor =  Color(0.596f, 0.808f, 0.757f, 0.827f)
                     )
                 )
+
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.background(Color(0.204f, 0.408f, 0.357f, 0.8f))
+                ) {
+                    Text(
+                        "Save Login Info",
+                        color = Color.White,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                    Switch(
+                        onCheckedChange = { checked ->
+                            saveLoginInfo = checked
+                        },
+                        checked = saveLoginInfo,
+                        modifier = Modifier.padding(5.dp, 0.dp, 5.dp, 0.dp)
+                    )
+                }
             }
+
             Button(
                 onClick = {
                     loginRequested = true
+                    prefs.edit { putBoolean("saveLogin", saveLoginInfo) }
+                    if (saveLoginInfo) {
+                        prefs.edit { putString("savedEmail", email) }
+                        prefs.edit { putString("savedPassword", password) }
+                    }
                 },
                 colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
                 shape = RectangleShape,
@@ -188,6 +220,7 @@ fun Login(modifier: Modifier = Modifier) {
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
