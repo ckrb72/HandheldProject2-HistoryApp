@@ -51,8 +51,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -202,6 +205,16 @@ fun Login(modifier: Modifier = Modifier) {
             )
         }
     }
+
+    LaunchedEffect(Unit) {
+        val events = withContext(Dispatchers.IO) {
+            QueryManager.retrieveHistoricalEvents(LatLng(38.8977, -77.0365), 10)
+        }
+
+        Log.d("TESTING", "${events.size}")
+    }
+
+
     LaunchedEffect(loginRequested) {
         if (loginRequested) {
             isLoading = true
