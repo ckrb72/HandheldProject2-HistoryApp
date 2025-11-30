@@ -18,17 +18,30 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
@@ -84,6 +98,7 @@ class MainMenuActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyMap(user: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -106,6 +121,8 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
         }
     }
     var showMenu by remember { mutableStateOf(false) }
+    val dateRangePickerState = rememberDateRangePickerState()
+    var showDatePicker by remember { mutableStateOf(false) }
 
     // Check if the location permission is granted, if not, request it
     LaunchedEffect(Unit) {
@@ -180,15 +197,46 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                             Text("Saved Locations")
                         }
 
-                        Button(
-                            shape = RectangleShape,
-                            onClick = {
-//                                val intent = Intent(context, DateCalendarActivity::class.java)
-//                                context.startActivity(intent)
+                        OutlinedTextField(
+                            modifier = Modifier.padding(10.dp),
+                            onValueChange = {},
+                            value = "",
+                            readOnly = true,
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    showDatePicker = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "Calendar"
+                                    )
+                                }
                             }
-                        ) {
-                            Text("Set Date")
+                        )
+
+                        if (showDatePicker) {
+                            // Read dateRangePickerState.selectedStartDateMillis
+                            DatePickerDialog(
+                                onDismissRequest = { showDatePicker = false },
+                                confirmButton = {
+                                },
+                                shape = RectangleShape
+                            ) {
+                                DateRangePicker(
+                                    state = dateRangePickerState
+                                )
+                            }
                         }
+
+//                        Button(
+//                            shape = RectangleShape,
+//                            onClick = {
+////                                val intent = Intent(context, DateCalendarActivity::class.java)
+////                                context.startActivity(intent)
+//                            }
+//                        ) {
+//                            Text("Set Date")
+//                        }
                     }
                 }
             }
