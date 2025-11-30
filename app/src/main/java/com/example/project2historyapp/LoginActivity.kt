@@ -206,15 +206,6 @@ fun Login(modifier: Modifier = Modifier) {
         }
     }
 
-    LaunchedEffect(Unit) {
-        val events = withContext(Dispatchers.IO) {
-            QueryManager.retrieveHistoricalEvents(LatLng(38.8977, -77.0365), 10)
-        }
-
-        Log.d("TESTING", "${events.size}")
-    }
-
-
     LaunchedEffect(loginRequested) {
         if (loginRequested) {
             isLoading = true

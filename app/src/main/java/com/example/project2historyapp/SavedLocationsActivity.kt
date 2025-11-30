@@ -14,11 +14,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -32,11 +37,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 
 class SavedLocationsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +67,18 @@ class SavedLocationsActivity : ComponentActivity() {
 @Composable
 fun SavedLocations(user: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    var eventList by remember { mutableStateOf<List<HistoricalEvent>>(listOf()) }
+    var isLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isLoading = true
+        val result = withContext(Dispatchers.IO) {
+            QueryManager.retrieveHistoricalEvents(LatLng(38.4221, -77.4083), 100)
+        }
+        eventList = result
+        isLoading = false
+    }
+
 
     remember {
         val dbRef = FirebaseDatabase.getInstance().getReference("users/$user/locations")
@@ -100,8 +121,8 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxSize()
                     .padding(10.dp, 0.dp, 10.dp, 30.dp)
             ) {
-                items(20) {
-                    LocationCard(onClick = { /*TODO*/ })
+                items(eventList) { event ->
+                    LocationCard(event, onClick = { /*TODO*/ })
                 }
             }
         }
@@ -109,13 +130,13 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LocationCard(modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun LocationCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         modifier = modifier.fillMaxSize(),
         shape = RectangleShape,
         onClick = onClick
     ) {
-        Text("Location")
+        Text(savedLocation.name)
     }
 }
 

@@ -23,15 +23,91 @@ object QueryManager {
     suspend fun retrieveHistoricalEvents(location: LatLng, radius: Int): List<HistoricalEvent> {
 
         val query: String = """
-            SELECT ?item ?itemLabel ?location ?distance WHERE {
+        SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time WHERE {
+  # Berlin coordinates
+  wd:Q64 wdt:P625 ?berlinLoc .
+  SERVICE wikibase:around {
+    ?event wdt:P625 ?location .
+    bd:serviceParam wikibase:center ?berlinLoc ;
+                    wikibase:radius "$radius" ;
+                    wikibase:distance ?dist .
+  }
+  ?event wdt:P585 ?time.
+  
+    FILTER EXISTS {
+    VALUES ?type {
+      wd:Q1190554    # event
+      wd:Q198        # historical event
+      wd:Q1656682    # significant event
+      wd:Q839954     # heritage site
+      wd:Q11707      # archaeological site
+      wd:Q575759     # historic site
+      wd:Q9259       # monument
+      wd:Q570116     # UNESCO World Heritage Site
+    }
+    ?event wdt:P31/wdt:P279* ?type .
+  }
+  
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "en" .
+  }
+} ORDER BY ASC(?time)
+LIMIT 500
+        """.trimIndent()
+
+        /*
+                    SELECT DISTINCT ?event ?eventLabel ?location ?distance ?time WHERE {
               SERVICE wikibase:around {
-                ?item wdt:P625 ?location .
+                ?event wdt:P625 ?location .
                 bd:serviceParam wikibase:center "Point(${location.longitude} ${location.latitude})"^^geo:wktLiteral .
                 bd:serviceParam wikibase:radius "$radius" .
                 bd:serviceParam wikibase:distance ?distance .
               }
 
-              # Broader categories
+
+              SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+            }
+            ORDER BY ASC(?distance)
+            LIMIT 500
+
+         */
+
+        /*
+        SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time WHERE {
+  # Berlin coordinates
+  wd:Q64 wdt:P625 ?berlinLoc .
+  SERVICE wikibase:around {
+    ?event wdt:P625 ?location .
+    bd:serviceParam wikibase:center ?berlinLoc ;
+                    wikibase:radius "100" ;
+                    wikibase:distance ?dist .
+  }
+  ?event wdt:P585 ?time.
+
+    FILTER EXISTS {
+    VALUES ?type {
+      wd:Q1190554    # event
+      wd:Q198        # historical event
+      wd:Q1656682    # significant event
+      wd:Q839954     # heritage site
+      wd:Q11707      # archaeological site
+      wd:Q575759     # historic site
+      wd:Q9259       # monument
+      wd:Q570116     # UNESCO World Heritage Site
+    }
+    ?event wdt:P31/wdt:P279* ?type .
+  }
+
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "en" .
+  }
+} ORDER BY ASC(?dist)
+LIMIT 500
+
+         */
+
+        /*
+                      # Broader categories
               VALUES ?class {
                 wd:Q839954      # historic site
                 wd:Q271669      # archaeological site
@@ -41,13 +117,53 @@ object QueryManager {
                 wd:Q570116      # historic district
               }
 
-              ?item wdt:P31/wdt:P279* ?class .
+              ?event wdt:P31/wdt:P279* ?class .
 
-              SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-            }
-            ORDER BY ?distance
+         */
 
-        """.trimIndent()
+        /*
+       SELECT ?place ?placeLabel ?location ?dist ?start ?end ?time WHERE {
+  # Berlin coordinates
+  wd:Q64 wdt:P625 ?berlinLoc .
+  SERVICE wikibase:around {
+    ?place wdt:P625 ?location .
+    bd:serviceParam wikibase:center ?berlinLoc ;
+                    wikibase:radius "100" ;
+                    wikibase:distance ?dist .
+  }
+  # Is an airport
+  OPTIONAL { ?place wdt:P580 ?start. }
+  OPTIONAL { ?place wdt:P582 ?end. }
+  OPTIONAL { ?place wdt:P585 ?time. }
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "en" .
+  }
+} ORDER BY ASC(?dist)
+LIMIT 100
+         */
+
+
+        /*
+        SELECT DISTINCT ?place ?placeLabel ?location ?dist ?start ?end ?time WHERE {
+  # Berlin coordinates
+  wd:Q64 wdt:P625 ?berlinLoc .
+  SERVICE wikibase:around {
+    ?place wdt:P625 ?location .
+    bd:serviceParam wikibase:center ?berlinLoc ;
+                    wikibase:radius "100" ;
+                    wikibase:distance ?dist .
+  }
+  # Is an airport
+  OPTIONAL { ?place wdt:P580 ?start. }
+  OPTIONAL { ?place wdt:P582 ?end. }
+  ?place wdt:P585 ?time.
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "en" .
+  }
+} ORDER BY ASC(?dist)
+LIMIT 100
+
+         */
 
         val request = Request.Builder()
             .url("https://query.wikidata.org/sparql?format=json&query=${URLEncoder.encode(query, "UTF-8")}")
@@ -64,7 +180,7 @@ object QueryManager {
                 for (i in 0 until events.length()) {
                     val currentEvent = events.getJSONObject(i)
                     val event = HistoricalEvent(
-                        name = currentEvent.getJSONObject("itemLabel").getString("value")
+                        name = currentEvent.getJSONObject("eventLabel").getString("value")
                     )
 
                     eventList.add(event)
@@ -82,6 +198,14 @@ object QueryManager {
             return listOf()
 
         }
+    }
+
+    suspend fun getLatLngFromPoint(point: String): LatLng {
+        val latLng = point.removePrefix("Point(").removeSuffix(")")
+        val (lonStr, latStr) = latLng.split(" ")
+        val lat = latStr.toDouble()
+        val lon = lonStr.toDouble()
+        return LatLng(lat, lon)
     }
 
 }

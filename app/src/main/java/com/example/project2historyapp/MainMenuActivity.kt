@@ -14,10 +14,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -94,6 +105,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
             }
         }
     }
+    var showMenu by remember { mutableStateOf(false) }
 
     // Check if the location permission is granted, if not, request it
     LaunchedEffect(Unit) {
@@ -132,6 +144,66 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 color = Color(1.0f, 0.718f, 0.0f, 1.0f),
                 strokeWidth = 8.dp
             )
+        }
+
+        Column(
+            modifier = Modifier.align(Alignment.BottomStart)
+        ) {
+            if (showMenu) {
+                Card(
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 5.dp),
+                    colors = CardColors(Color.White, Color.White, Color.White, Color.White),
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            shape = RectangleShape,
+                            onClick = {
+                                val intent = Intent(context, StatisticsActivity::class.java)
+                                intent.putExtra("EMAIL", user)
+                                context.startActivity(intent)
+                            }
+                        ) {
+                            Text("Statistics")
+                        }
+
+                        Button(
+                            shape = RectangleShape,
+                            onClick = {
+                                val intent = Intent(context, SavedLocationsActivity::class.java)
+                                intent.putExtra("EMAIL", user)
+                                context.startActivity(intent)
+                            }
+                        ) {
+                            Text("Saved Locations")
+                        }
+
+                        Button(
+                            shape = RectangleShape,
+                            onClick = {
+//                                val intent = Intent(context, DateCalendarActivity::class.java)
+//                                context.startActivity(intent)
+                            }
+                        ) {
+                            Text("Set Date")
+                        }
+                    }
+                }
+            }
+
+            FloatingActionButton(
+                modifier = Modifier.padding(45.dp, 0.dp, 0.dp, 50.dp),
+                onClick = {
+                    showMenu = !showMenu
+                }
+            ) {
+                Icon(
+                    painter = painterResource(if (showMenu) R.drawable.outline_arrow_drop_up_24 else R.drawable.outline_arrow_drop_down_24),
+                    contentDescription = "Menu"
+                )
+            }
         }
     }
 
