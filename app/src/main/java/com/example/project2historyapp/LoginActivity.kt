@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -107,7 +108,10 @@ fun Login(modifier: Modifier = Modifier) {
             ) {
                 OutlinedTextField(
                     value = email,
-                    placeholder = { Text("Email") },
+                    placeholder = {
+                        val emailPlaceholder = stringResource(R.string.email_placeholder)
+                        Text(emailPlaceholder)
+                                  },
                     onValueChange = {newVal -> email = newVal},
                     shape = RectangleShape,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -124,7 +128,9 @@ fun Login(modifier: Modifier = Modifier) {
 
                 OutlinedTextField(
                     value = password,
-                    placeholder = { Text("Password") },
+                    placeholder = {
+                        val passwordPlaceholder = stringResource(R.string.password_placeholder)
+                        Text(passwordPlaceholder) },
                     onValueChange = {newVal -> password = newVal},
                     shape = RectangleShape,
                     visualTransformation = PasswordVisualTransformation(),
@@ -143,8 +149,9 @@ fun Login(modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.background(Color(0.204f, 0.408f, 0.357f, 0.8f))
                 ) {
+                    val saveLoginString = stringResource(R.string.save_login_text)
                     Text(
-                        "Save Login Info",
+                        saveLoginString,
                         color = Color.White,
                         modifier = Modifier.padding(10.dp)
                     )
@@ -172,7 +179,8 @@ fun Login(modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(20.dp),
                 enabled = email.isNotBlank() && password.isNotBlank(),
             ) {
-                Text("Login")
+                val loginString = stringResource(R.string.login_text)
+                Text(loginString)
             }
 
             Button(
@@ -184,7 +192,8 @@ fun Login(modifier: Modifier = Modifier) {
                 shape = RectangleShape,
                 modifier = Modifier.padding(20.dp)
             ) {
-                Text("Sign Up")
+                val signUpString = stringResource(R.string.sign_up_text)
+                Text(signUpString)
             }
         }
         error?.let {

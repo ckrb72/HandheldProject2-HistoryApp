@@ -4,4 +4,18 @@
     <string name="title_activity_statistics">StatisticsActivity</string>
     <string name="title_activity_register">RegisterActivity</string>
     <string name="title_activity_saved_locations">SavedLocationsActivity</string>
+    <string name="resolving_address_message">Resolving Address…</string>
+    <string name="address_result_message">Results For:</string>
+    <string name="statistics_button">Statistics</string>
+    <string name="saved_locations_button">Saved Locations</string>
+    <string name="set_date_button">Set Date</string>
+    <string name="email_placeholder">Email</string>
+    <string name="password_placeholder">Password</string>
+    <string name="confirm_password_placeholder">Confirm Password</string>
+    <string name="save_login_text">Save Login Info</string>
+    <string name="login_text">Login</string>
+    <string name="sign_up_text">Sign Up</string>
+    <string name="register_text">Register</string>
+    <string name="back_text">Back</string>
+    <string name="password_match_error">Passwords Do Not Match!</string>
 </resources>

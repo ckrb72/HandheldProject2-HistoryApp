@@ -58,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -121,7 +122,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
         }
     }
     var showMenu by remember { mutableStateOf(false) }
-    val dateRangePickerState = rememberDateRangePickerState()
+    val dateRangePickerState = rememberDateRangePickerState(yearRange = 1000..2025)
     var showDatePicker by remember { mutableStateOf(false) }
 
     // Check if the location permission is granted, if not, request it
@@ -134,6 +135,8 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center
     ) {
+
+        val resolvingAddressString = stringResource(R.string.resolving_address_message)
         GoogleMap(
             modifier = modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -143,13 +146,14 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, cameraPositionState.position.zoom)
 //                prefs.edit { putFloat("MapLatitude", latLng.latitude.toFloat()) }
 //                prefs.edit { putFloat("MapLongitude", latLng.longitude.toFloat()) }
-                addressInfo = "Resolving address..."
+                addressInfo = resolvingAddressString
             }
         ) {
+            val addressResultString = stringResource(R.string.address_result_message)
             markerPosition?.let { position ->
                 Marker(
                     state = MarkerState(position = position),
-                    title = "Results for: $addressInfo",
+                    title = "$addressResultString $addressInfo",
                     snippet = "(" + position.latitude + ", " + position.longitude + ")"
                 )
             }
@@ -183,7 +187,8 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                                 context.startActivity(intent)
                             }
                         ) {
-                            Text("Statistics")
+                            val statisticsText = stringResource(R.string.statistics_button)
+                            Text(statisticsText)
                         }
 
                         Button(
@@ -194,28 +199,22 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                                 context.startActivity(intent)
                             }
                         ) {
-                            Text("Saved Locations")
+                            val savedLocationsText = stringResource(R.string.saved_locations_button)
+                            Text(savedLocationsText)
                         }
 
-                        OutlinedTextField(
-                            modifier = Modifier.padding(10.dp),
-                            onValueChange = {},
-                            value = "",
-                            readOnly = true,
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    showDatePicker = true
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.DateRange,
-                                        contentDescription = "Calendar"
-                                    )
-                                }
+                        Button(
+                            shape = RectangleShape,
+                            onClick = {
+                                showDatePicker = true
                             }
-                        )
+                        ) {
+                            val setDateText = stringResource(R.string.set_date_button)
+                            Text(setDateText)
+                        }
 
                         if (showDatePicker) {
-                            // Read dateRangePickerState.selectedStartDateMillis
+//                             Read dateRangePickerState.selectedStartDateMillis
                             DatePickerDialog(
                                 onDismissRequest = { showDatePicker = false },
                                 confirmButton = {
@@ -223,20 +222,10 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                                 shape = RectangleShape
                             ) {
                                 DateRangePicker(
-                                    state = dateRangePickerState
+                                    state = dateRangePickerState,
                                 )
                             }
                         }
-
-//                        Button(
-//                            shape = RectangleShape,
-//                            onClick = {
-////                                val intent = Intent(context, DateCalendarActivity::class.java)
-////                                context.startActivity(intent)
-//                            }
-//                        ) {
-//                            Text("Set Date")
-//                        }
                     }
                 }
             }
