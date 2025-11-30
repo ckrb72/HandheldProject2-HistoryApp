@@ -99,7 +99,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .paint(
                 painterResource(R.drawable.stats_background),
                 contentScale = ContentScale.FillBounds

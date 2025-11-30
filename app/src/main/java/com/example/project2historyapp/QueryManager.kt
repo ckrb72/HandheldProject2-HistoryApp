@@ -6,6 +6,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
+import org.json.JSONException
 import org.json.JSONObject
 import java.net.URLEncoder
 import java.time.LocalDate
@@ -17,9 +18,9 @@ object QueryManager {
 
     init {
         val builder = OkHttpClient.Builder()
-            .connectTimeout(45, TimeUnit.SECONDS)
-            .readTimeout(45, TimeUnit.SECONDS)
-            .writeTimeout(45, TimeUnit.SECONDS)
+            .connectTimeout(120, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
+            .writeTimeout(120, TimeUnit.SECONDS)
         val loggingInterceptor: HttpLoggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         builder.addInterceptor(loggingInterceptor)
@@ -29,7 +30,7 @@ object QueryManager {
     suspend fun retrieveHistoricalEvents(location: LatLng, radius: Int): List<HistoricalEvent> {
 
         val query: String = """
-        SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time WHERE {
+        SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time ?article WHERE {
             # Berlin coordinates
             wd:Q64 wdt:P625 ?berlinLoc .
             SERVICE wikibase:around {
@@ -40,7 +41,7 @@ object QueryManager {
             }
             ?event wdt:P585 ?time.
   
-                FILTER EXISTS {
+            FILTER EXISTS {
                 VALUES ?type {
                 wd:Q1190554    # event
                 wd:Q198        # historical event
@@ -52,6 +53,11 @@ object QueryManager {
                 wd:Q570116     # UNESCO World Heritage Site
                 }
                 ?event wdt:P31/wdt:P279* ?type .
+            }
+            
+            OPTIONAL {
+                ?article schema:about ?event .
+                ?article schema:isPartOf <https://en.wikipedia.org/> .
             }
   
             SERVICE wikibase:label {
@@ -186,11 +192,18 @@ LIMIT 100
                 for (i in 0 until events.length()) {
                     val currentEvent = events.getJSONObject(i)
 
-                    Log.d("LOCATION", "${getLatLngFromPoint(currentEvent.getJSONObject("location").getString("value")).longitude}")
+                    var article: String? = null
+                    try {
+                        val articleObject = currentEvent.getJSONObject("article")
+                        article = articleObject.getString("value")
+                    } catch(error: JSONException) {
+
+                    }
                     val event = HistoricalEvent(
                         name = currentEvent.getJSONObject("eventLabel").getString("value"),
                         date = formatDate(currentEvent.getJSONObject("time").getString("value")),
-                        location = getLatLngFromPoint(currentEvent.getJSONObject("location").getString("value"))
+                        location = getLatLngFromPoint(currentEvent.getJSONObject("location").getString("value")),
+                        article = article
                     )
 
                     eventList.add(event)
