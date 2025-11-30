@@ -109,8 +109,7 @@ fun Login(modifier: Modifier = Modifier) {
                 OutlinedTextField(
                     value = email,
                     placeholder = {
-                        val emailPlaceholder = stringResource(R.string.email_placeholder)
-                        Text(emailPlaceholder)
+                        Text(context.getString(R.string.email_placeholder))
                                   },
                     onValueChange = {newVal -> email = newVal},
                     shape = RectangleShape,
@@ -128,9 +127,7 @@ fun Login(modifier: Modifier = Modifier) {
 
                 OutlinedTextField(
                     value = password,
-                    placeholder = {
-                        val passwordPlaceholder = stringResource(R.string.password_placeholder)
-                        Text(passwordPlaceholder) },
+                    placeholder = { Text(context.getString(R.string.password_placeholder)) },
                     onValueChange = {newVal -> password = newVal},
                     shape = RectangleShape,
                     visualTransformation = PasswordVisualTransformation(),
@@ -149,9 +146,8 @@ fun Login(modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.background(Color(0.204f, 0.408f, 0.357f, 0.8f))
                 ) {
-                    val saveLoginString = stringResource(R.string.save_login_text)
                     Text(
-                        saveLoginString,
+                        context.getString(R.string.save_login_text),
                         color = Color.White,
                         modifier = Modifier.padding(10.dp)
                     )
@@ -179,8 +175,7 @@ fun Login(modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(20.dp),
                 enabled = email.isNotBlank() && password.isNotBlank(),
             ) {
-                val loginString = stringResource(R.string.login_text)
-                Text(loginString)
+                Text(context.getString(R.string.login_text))
             }
 
             Button(
@@ -192,8 +187,7 @@ fun Login(modifier: Modifier = Modifier) {
                 shape = RectangleShape,
                 modifier = Modifier.padding(20.dp)
             ) {
-                val signUpString = stringResource(R.string.sign_up_text)
-                Text(signUpString)
+                Text(context.getString(R.string.sign_up_text))
             }
         }
         error?.let {

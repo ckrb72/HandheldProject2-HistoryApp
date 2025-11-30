@@ -89,9 +89,7 @@ fun Register(modifier: Modifier = Modifier) {
             ) {
                 OutlinedTextField(
                     value = email,
-                    placeholder = {
-                        val emailString = stringResource(R.string.email_placeholder)
-                        Text(emailString) },
+                    placeholder = { Text(context.getString(R.string.email_placeholder)) },
                     onValueChange = {newVal -> email = newVal},
                     shape = RectangleShape,
                     colors = OutlinedTextFieldDefaults.colors(
@@ -108,9 +106,7 @@ fun Register(modifier: Modifier = Modifier) {
 
                 OutlinedTextField(
                     value = password,
-                    placeholder = {
-                        val passwordPlaceholder = stringResource(R.string.password_placeholder)
-                        Text(passwordPlaceholder) },
+                    placeholder = { Text(context.getString(R.string.password_placeholder)) },
                     onValueChange = {newVal -> password = newVal},
                     shape = RectangleShape,
                     visualTransformation = PasswordVisualTransformation(),
@@ -128,9 +124,7 @@ fun Register(modifier: Modifier = Modifier) {
 
                 OutlinedTextField(
                     value = confirmedPassword,
-                    placeholder = {
-                        val confirmPasswordPlaceholder = stringResource(R.string.confirm_password_placeholder)
-                        Text(confirmPasswordPlaceholder) },
+                    placeholder = { Text(context.getString(R.string.confirm_password_placeholder)) },
                     onValueChange = {newVal -> confirmedPassword = newVal},
                     shape = RectangleShape,
                     visualTransformation = PasswordVisualTransformation(),
@@ -145,13 +139,12 @@ fun Register(modifier: Modifier = Modifier) {
                 )
             }
 
-            val passwordMatchError = stringResource(R.string.password_match_error)
             Button(
                 onClick = {
                     // Check to make sure the two passwords are the same
                     error = null
                     if (password != confirmedPassword) {
-                        error = passwordMatchError
+                        error = context.getString(R.string.password_match_error)
                     } else {
                         registerRequested = true
                     }
@@ -161,8 +154,7 @@ fun Register(modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(20.dp),
                 enabled = email.isNotBlank() && password.isNotBlank() && confirmedPassword.isNotBlank()
             ) {
-                val registerString = stringResource(R.string.register_text)
-                Text(registerString)
+                Text(context.getString(R.string.register_text))
             }
 
             Button(
@@ -174,8 +166,7 @@ fun Register(modifier: Modifier = Modifier) {
                 shape = RectangleShape,
                 modifier = Modifier.padding(20.dp)
             ) {
-                val backString = stringResource(R.string.back_text)
-                Text(backString)
+                Text(context.getString(R.string.back_text))
             }
         }
 

@@ -136,7 +136,6 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
 
-        val resolvingAddressString = stringResource(R.string.resolving_address_message)
         GoogleMap(
             modifier = modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
@@ -146,14 +145,13 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, cameraPositionState.position.zoom)
 //                prefs.edit { putFloat("MapLatitude", latLng.latitude.toFloat()) }
 //                prefs.edit { putFloat("MapLongitude", latLng.longitude.toFloat()) }
-                addressInfo = resolvingAddressString
+                addressInfo = context.getString(R.string.resolving_address_message)
             }
         ) {
-            val addressResultString = stringResource(R.string.address_result_message)
             markerPosition?.let { position ->
                 Marker(
                     state = MarkerState(position = position),
-                    title = "$addressResultString $addressInfo",
+                    title = "${context.getString(R.string.address_result_message)} $addressInfo",
                     snippet = "(" + position.latitude + ", " + position.longitude + ")"
                 )
             }
@@ -187,8 +185,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                                 context.startActivity(intent)
                             }
                         ) {
-                            val statisticsText = stringResource(R.string.statistics_button)
-                            Text(statisticsText)
+                            Text(context.getString(R.string.statistics_button))
                         }
 
                         Button(
@@ -199,8 +196,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                                 context.startActivity(intent)
                             }
                         ) {
-                            val savedLocationsText = stringResource(R.string.saved_locations_button)
-                            Text(savedLocationsText)
+                            Text(context.getString(R.string.saved_locations_button))
                         }
 
                         Button(
@@ -209,8 +205,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                                 showDatePicker = true
                             }
                         ) {
-                            val setDateText = stringResource(R.string.set_date_button)
-                            Text(setDateText)
+                            Text(context.getString(R.string.set_date_button))
                         }
 
                         if (showDatePicker) {
