@@ -8,12 +8,18 @@ import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
 import java.net.URLEncoder
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 
 object QueryManager {
     val client: OkHttpClient
 
     init {
         val builder = OkHttpClient.Builder()
+            .connectTimeout(45, TimeUnit.SECONDS)
+            .readTimeout(45, TimeUnit.SECONDS)
+            .writeTimeout(45, TimeUnit.SECONDS)
         val loggingInterceptor: HttpLoggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         builder.addInterceptor(loggingInterceptor)
@@ -24,35 +30,35 @@ object QueryManager {
 
         val query: String = """
         SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time WHERE {
-  # Berlin coordinates
-  wd:Q64 wdt:P625 ?berlinLoc .
-  SERVICE wikibase:around {
-    ?event wdt:P625 ?location .
-    bd:serviceParam wikibase:center ?berlinLoc ;
-                    wikibase:radius "$radius" ;
-                    wikibase:distance ?dist .
-  }
-  ?event wdt:P585 ?time.
+            # Berlin coordinates
+            wd:Q64 wdt:P625 ?berlinLoc .
+            SERVICE wikibase:around {
+                ?event wdt:P625 ?location .
+                bd:serviceParam wikibase:center ?berlinLoc ;
+                                wikibase:radius "$radius" ;
+                                wikibase:distance ?dist .
+            }
+            ?event wdt:P585 ?time.
   
-    FILTER EXISTS {
-    VALUES ?type {
-      wd:Q1190554    # event
-      wd:Q198        # historical event
-      wd:Q1656682    # significant event
-      wd:Q839954     # heritage site
-      wd:Q11707      # archaeological site
-      wd:Q575759     # historic site
-      wd:Q9259       # monument
-      wd:Q570116     # UNESCO World Heritage Site
-    }
-    ?event wdt:P31/wdt:P279* ?type .
-  }
+                FILTER EXISTS {
+                VALUES ?type {
+                wd:Q1190554    # event
+                wd:Q198        # historical event
+                wd:Q1656682    # significant event
+                wd:Q839954     # heritage site
+                wd:Q11707      # archaeological site
+                wd:Q575759     # historic site
+                wd:Q9259       # monument
+                wd:Q570116     # UNESCO World Heritage Site
+                }
+                ?event wdt:P31/wdt:P279* ?type .
+            }
   
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "en" .
-  }
-} ORDER BY ASC(?time)
-LIMIT 500
+            SERVICE wikibase:label {
+                bd:serviceParam wikibase:language "en" .
+            }
+        } ORDER BY ASC(?time)
+        LIMIT 100
         """.trimIndent()
 
         /*
@@ -179,8 +185,12 @@ LIMIT 100
                 val events = json.getJSONObject("results").getJSONArray("bindings")
                 for (i in 0 until events.length()) {
                     val currentEvent = events.getJSONObject(i)
+
+                    Log.d("LOCATION", "${getLatLngFromPoint(currentEvent.getJSONObject("location").getString("value")).longitude}")
                     val event = HistoricalEvent(
-                        name = currentEvent.getJSONObject("eventLabel").getString("value")
+                        name = currentEvent.getJSONObject("eventLabel").getString("value"),
+                        date = formatDate(currentEvent.getJSONObject("time").getString("value")),
+                        location = getLatLngFromPoint(currentEvent.getJSONObject("location").getString("value"))
                     )
 
                     eventList.add(event)
@@ -200,12 +210,19 @@ LIMIT 100
         }
     }
 
-    suspend fun getLatLngFromPoint(point: String): LatLng {
+    fun getLatLngFromPoint(point: String): LatLng {
         val latLng = point.removePrefix("Point(").removeSuffix(")")
         val (lonStr, latStr) = latLng.split(" ")
         val lat = latStr.toDouble()
         val lon = lonStr.toDouble()
         return LatLng(lat, lon)
+    }
+
+    fun formatDate(date: String): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        val localDate = LocalDate.parse(date, formatter)
+        val outputFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy")
+        return localDate.format(outputFormat)
     }
 
 }

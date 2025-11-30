@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -126,17 +127,29 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                 }
             }
         }
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                color = Color(1.0f, 0.718f, 0.0f, 1.0f),
+                strokeWidth = 8.dp
+            )
+        }
     }
 }
 
 @Composable
 fun LocationCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize()
+            .padding(10.dp),
         shape = RectangleShape,
         onClick = onClick
     ) {
-        Text(savedLocation.name)
+        Column {
+            Text(savedLocation.name)
+            Text(savedLocation.date)
+            Text("${savedLocation.location.latitude} ${savedLocation.location.longitude}")
+        }
     }
 }
 
