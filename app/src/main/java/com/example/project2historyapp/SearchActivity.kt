@@ -58,7 +58,7 @@ class SearchActivity : ComponentActivity() {
         val endTime = intent.getLongExtra("END_TIME", 0)
         val latitude = intent.getDoubleExtra("LATITUDE", 0.0)
         val longitude = intent.getDoubleExtra("LONGITUDE", 0.0)
-        val user = intent.getStringExtra("EMAIL")
+        val user = intent.getStringExtra("EMAIL").toString()
         setContent {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -137,7 +137,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                     context.startActivity(intent)
                 }
             ) {
-                Text("Back")
+                Text(context.getString(R.string.back_text))
             }
 
             Button(

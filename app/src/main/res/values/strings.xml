@@ -20,4 +20,5 @@
     <string name="password_match_error">Passwords Do Not Match!</string>
     <string name="title_activity_search">SearchActivity</string>
     <string name="no_saved_locations_text">No Saved Locations…</string>
+    <string name="save_location_text">Save Location</string>
 </resources>

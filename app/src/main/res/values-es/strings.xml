@@ -21,4 +21,5 @@
     <string name="password_match_error">Las Contraseñas No Coinciden!</string>
     <string name="title_activity_search">SearchActivity</string>
     <string name="no_saved_locations_text">No Hay Ubicaciones Guardadas…</string>
+    <string name="save_location_text">Guardar Ubicación</string>
 </resources>

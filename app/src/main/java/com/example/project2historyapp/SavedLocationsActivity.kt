@@ -1,5 +1,6 @@
 package com.example.project2historyapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -53,6 +54,8 @@ class SavedLocationsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val user = intent.getStringExtra("EMAIL").toString()
         setContent {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -117,12 +120,21 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                     .padding(10.dp, 0.dp, 10.dp, 30.dp)
             ) {
                 items(locationList) { location ->
-                    LocationCard(location, onClick = { /*TODO*/ })
+                    LocationCard(location, onClick = {
+                        val intent = Intent(context, SearchActivity::class.java)
+                        intent.putExtra("EMAIL", user)
+                        intent.putExtra("LATITUDE", location.latitude)
+                        intent.putExtra("LONGITUDE", location.longitude)
+                        intent.putExtra("START_TIME", location.start)
+                        intent.putExtra("END_TIME", location.end)
+                        intent.putExtra("LOCATION_NAME", location.name)
+                        context.startActivity(intent)
+                    })
                 }
             }
         }
 
-        if (locationList.size == 0) {
+        if (locationList.isEmpty()) {
             Text(
                 context.getString(R.string.no_saved_locations_text),
                 modifier = Modifier.align(Alignment.Center),
