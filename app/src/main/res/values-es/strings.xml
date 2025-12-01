@@ -24,4 +24,5 @@
     <string name="save_location_text">Guardar Ubicación</string>
     <string name="search_text">Buscar</string>
     <string name="event_text">Eventos cerca</string>
+    <string name="no_events_text">No Se Encontraron Eventos…</string>
 </resources>

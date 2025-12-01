@@ -24,4 +24,5 @@
     <string name="save_location_text">Sábháil Suíomh</string>
     <string name="search_text">Cuardach</string>
     <string name="event_text">Imeachtaí Near</string>
+    <string name="no_events_text">Níor Aimsíodh Imeachtaí Ar Bith…</string>
 </resources>

@@ -70,6 +70,12 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
+import com.google.firebase.database.database
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
@@ -106,12 +112,11 @@ class MainMenuActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyMap(user: String, modifier: Modifier = Modifier) {
-    Log.d("USERNAME", user)
     val context = LocalContext.current
-    val staffordVA = LatLng(38.4221, -77.4083)
-    var markerPosition by remember { mutableStateOf<LatLng?>(staffordVA) }
+    val prefs = remember { context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE) }
+    var markerPosition by remember { mutableStateOf<LatLng?>(LatLng(prefs.getFloat("MapLatitude", 0.0f).toDouble(), prefs.getFloat("MapLongitude", 0.0f).toDouble())) }
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(staffordVA, 10f)
+        position = CameraPosition.fromLatLngZoom(LatLng(prefs.getFloat("MapLatitude", 0.0f).toDouble(), prefs.getFloat("MapLongitude", 0.0f).toDouble()), 10.0f)
     }
     var isLoading by remember { mutableStateOf(false) }
     var addressInfo by remember { mutableStateOf("Long Click on Map") }
@@ -123,6 +128,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
         if (isGranted) {
             useCurrentLocation(context) { latLng ->
                 markerPosition = latLng
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 10.0f)
             }
         }
     }
@@ -148,8 +154,8 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
             onMapLongClick = { latLng ->
                 markerPosition = latLng
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, cameraPositionState.position.zoom)
-//                prefs.edit { putFloat("MapLatitude", latLng.latitude.toFloat()) }
-//                prefs.edit { putFloat("MapLongitude", latLng.longitude.toFloat()) }
+                prefs.edit { putFloat("MapLatitude", latLng.latitude.toFloat()) }
+                prefs.edit { putFloat("MapLongitude", latLng.longitude.toFloat()) }
                 addressInfo = context.getString(R.string.resolving_address_message)
             }
         ) {
@@ -277,7 +283,6 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 getAddressGeocodeCurrent(context, latLng)
             }
             isLoading = false
-            Log.d("Address", addressInfo)
         }
     }
 }

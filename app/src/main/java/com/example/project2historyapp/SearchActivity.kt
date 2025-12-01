@@ -43,7 +43,11 @@ import androidx.compose.ui.unit.sp
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -59,6 +63,24 @@ class SearchActivity : ComponentActivity() {
         val latitude = intent.getDoubleExtra("LATITUDE", 0.0)
         val longitude = intent.getDoubleExtra("LONGITUDE", 0.0)
         val user = intent.getStringExtra("EMAIL").toString()
+
+        val info = locationName.split(", ")
+        val countryRef = Firebase.database.getReference("users/$user/countries")
+        val child = countryRef.child(info[2])
+        child.runTransaction(object: Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                val data = currentData.getValue(LocationVisitCount::class.java) ?: LocationVisitCount(info[2], 0)
+                data.count++
+                currentData.value = data
+                return Transaction.success(currentData)
+            }
+
+            override fun onComplete(
+                error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?
+            ) {
+                // Optional: handle completion
+            }
+        })
         setContent {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -91,6 +113,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
         eventList = result
         isLoading = false
     }
+
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -153,6 +176,15 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                 Text(context.getString(R.string.save_location_text))
             }
 
+        }
+
+        if (eventList.isEmpty() && !isLoading) {
+            Text(
+                context.getString(R.string.no_events_text),
+                fontSize = 20.sp,
+                modifier = Modifier.padding(20.dp),
+                textAlign = TextAlign.Center
+            )
         }
 
 
