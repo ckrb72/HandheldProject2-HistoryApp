@@ -122,7 +122,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
         }
     }
     var showMenu by remember { mutableStateOf(false) }
-    val dateRangePickerState = rememberDateRangePickerState(yearRange = 1000..2025)
+    val dateRangePickerState = rememberDateRangePickerState(yearRange = 1000..2025, initialSelectedStartDateMillis = System.currentTimeMillis(), initialSelectedEndDateMillis = System.currentTimeMillis())
     var showDatePicker by remember { mutableStateOf(false) }
 
     // Check if the location permission is granted, if not, request it
@@ -166,18 +166,21 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
         }
 
         Column(
-            modifier = Modifier.align(Alignment.BottomStart)
+            modifier = modifier.align(Alignment.BottomStart)
         ) {
             if (showMenu) {
                 Card(
+                    shape = RectangleShape,
                     modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 5.dp),
-                    colors = CardColors(Color.White, Color.White, Color.White, Color.White),
+                    colors = CardColors(Color(0.239f, 0.29f, 0.431f, 1.0f), Color.White, Color.White, Color.White),
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(
+                            colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                            modifier = Modifier.padding(5.dp),
                             shape = RectangleShape,
                             onClick = {
                                 val intent = Intent(context, StatisticsActivity::class.java)
@@ -189,6 +192,8 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                         }
 
                         Button(
+                            colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                            modifier = Modifier.padding(5.dp),
                             shape = RectangleShape,
                             onClick = {
                                 val intent = Intent(context, SavedLocationsActivity::class.java)
@@ -200,6 +205,8 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                         }
 
                         Button(
+                            colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                            modifier = Modifier.padding(5.dp),
                             shape = RectangleShape,
                             onClick = {
                                 showDatePicker = true
@@ -226,7 +233,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
             }
 
             FloatingActionButton(
-                modifier = Modifier.padding(45.dp, 0.dp, 0.dp, 50.dp),
+                modifier = Modifier.padding(40.dp, 0.dp, 0.dp, 32.dp),
                 onClick = {
                     showMenu = !showMenu
                 }
@@ -237,6 +244,25 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 )
             }
         }
+
+        Button(
+            colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+            shape = RectangleShape,
+            modifier = modifier.align(Alignment.BottomCenter)
+                .padding(0.dp, 0.dp, 0.dp, 35.dp),
+            onClick = {
+                val intent = Intent(context, SearchActivity::class.java)
+                intent.putExtra("EMAIL", user)
+                intent.putExtra("LATITUDE", markerPosition?.latitude)
+                intent.putExtra("LONGITUDE", markerPosition?.longitude)
+                intent.putExtra("START_TIME", dateRangePickerState.selectedStartDateMillis)
+                intent.putExtra("END_TIME", dateRangePickerState.selectedEndDateMillis)
+                intent.putExtra("LOCATION_NAME", addressInfo)
+                context.startActivity(intent)
+        }) {
+            Text("Search")
+        }
+
     }
 
     LaunchedEffect(markerPosition) {
