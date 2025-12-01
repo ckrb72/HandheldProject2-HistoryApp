@@ -260,7 +260,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 intent.putExtra("LOCATION_NAME", addressInfo)
                 context.startActivity(intent)
         }) {
-            Text("Search")
+            Text(context.getString(R.string.search_text))
         }
 
     }

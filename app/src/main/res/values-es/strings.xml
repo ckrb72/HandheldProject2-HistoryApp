@@ -22,4 +22,6 @@
     <string name="title_activity_search">SearchActivity</string>
     <string name="no_saved_locations_text">No Hay Ubicaciones Guardadas…</string>
     <string name="save_location_text">Guardar Ubicación</string>
+    <string name="search_text">Buscar</string>
+    <string name="event_text">Eventos cerca</string>
 </resources>

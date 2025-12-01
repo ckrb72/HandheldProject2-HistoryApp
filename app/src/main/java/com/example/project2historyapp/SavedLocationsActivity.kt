@@ -2,6 +2,7 @@ package com.example.project2historyapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,12 +11,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
@@ -81,7 +85,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
         dbRef.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) {
-                    Toast.makeText(context, "No Database Data Found", Toast.LENGTH_SHORT).show()
+                    Log.d("ERROR", "No data")
                     return
                 }
                 locationList.clear()
@@ -90,7 +94,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(context, "No Data Found", Toast.LENGTH_SHORT).show()
+                Log.d("ERROR", error.message)
             }
         })
     }
@@ -110,7 +114,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "Saved Locations",
+                context.getString(R.string.saved_locations_button),
                 fontSize = 25.sp,
                 modifier = Modifier.padding(20.dp)
             )
@@ -120,7 +124,9 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                     .padding(10.dp, 0.dp, 10.dp, 30.dp)
             ) {
                 items(locationList) { location ->
-                    LocationCard(location, onClick = {
+                    LocationCard(
+                        location,
+                        onClick = {
                         val intent = Intent(context, SearchActivity::class.java)
                         intent.putExtra("EMAIL", user)
                         intent.putExtra("LATITUDE", location.latitude)
@@ -129,9 +135,30 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                         intent.putExtra("END_TIME", location.end)
                         intent.putExtra("LOCATION_NAME", location.name)
                         context.startActivity(intent)
-                    })
+                    },
+                        onRemove = {
+                            val dbRef = FirebaseDatabase.getInstance().getReference("users/$user/locations")
+                            dbRef.child(location.name).removeValue()
+                        })
                 }
             }
+        }
+
+        Row(
+            modifier = modifier.align(Alignment.BottomCenter)
+                .padding(0.dp, 0.dp, 0.dp, 35.dp)
+        ) {
+            Button(
+                shape = RectangleShape,
+                colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                onClick = {
+                    val intent = Intent(context, MainMenuActivity::class.java)
+                    context.startActivity(intent)
+                }
+            ) {
+                Text(context.getString(R.string.back_text))
+            }
+
         }
 
         if (locationList.isEmpty()) {
@@ -152,7 +179,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LocationCard(savedLocation: LocationData, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun LocationCard(savedLocation: LocationData, modifier: Modifier = Modifier, onClick: () -> Unit, onRemove: () -> Unit) {
     Card(
         modifier = modifier.fillMaxSize()
             .padding(10.dp),
@@ -163,6 +190,11 @@ fun LocationCard(savedLocation: LocationData, modifier: Modifier = Modifier, onC
             Text(savedLocation.name)
             Text("${savedLocation.latitude} ${savedLocation.longitude}")
             Text("${savedLocation.start} ${savedLocation.end}")
+            Button(
+                onClick = onRemove
+            ) {
+                Text("Remove")
+            }
         }
     }
 }

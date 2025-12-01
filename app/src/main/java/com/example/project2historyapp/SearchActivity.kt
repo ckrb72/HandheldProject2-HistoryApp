@@ -107,7 +107,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "Events Near: $locationName",
+                "${context.getString(R.string.event_text)}: $locationName",
                 fontSize = 20.sp,
                 modifier = Modifier.padding(20.dp),
                 textAlign = TextAlign.Center
@@ -150,7 +150,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                     child.setValue(LocationData(latLng.latitude, latLng.longitude, startTime, endTime, locationName))
                 }
             ) {
-                Text("Save Location")
+                Text(context.getString(R.string.save_location_text))
             }
 
         }

@@ -18,9 +18,9 @@ object QueryManager {
 
     init {
         val builder = OkHttpClient.Builder()
-            .connectTimeout(120, TimeUnit.SECONDS)
-            .readTimeout(120, TimeUnit.SECONDS)
-            .writeTimeout(120, TimeUnit.SECONDS)
+            .connectTimeout(240, TimeUnit.SECONDS)
+            .readTimeout(240, TimeUnit.SECONDS)
+            .writeTimeout(240, TimeUnit.SECONDS)
         val loggingInterceptor: HttpLoggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         builder.addInterceptor(loggingInterceptor)
@@ -35,7 +35,7 @@ object QueryManager {
             wd:Q64 wdt:P625 ?berlinLoc .
             SERVICE wikibase:around {
                 ?event wdt:P625 ?location .
-                bd:serviceParam wikibase:center ?berlinLoc ;
+                bd:serviceParam wikibase:center "Point(${location.longitude} ${location.latitude})"^^geo:wktLiteral ;
                                 wikibase:radius "$radius" ;
                                 wikibase:distance ?dist .
             }
@@ -64,7 +64,7 @@ object QueryManager {
                 bd:serviceParam wikibase:language "en" .
             }
         } ORDER BY ASC(?time)
-        LIMIT 100
+        LIMIT 50
         """.trimIndent()
 
         /*

@@ -64,6 +64,12 @@ fun Stats(modifier: Modifier = Modifier) {
             ) {
                 Text("Name: ")
                 Text("Something Else")
+                Text("Most Visited Continent")
+                Text("Most Visited Country")
+                Text("Saved Locations")
+                Text("Most Visited Time Period")
+                Text("Favorite Time Period (most saved time period)")
+                Text("Favorite Country (most saved country)")
             }
         }
     }

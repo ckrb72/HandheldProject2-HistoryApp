@@ -22,4 +22,6 @@
     <string name="title_activity_search">SearchActivity</string>
     <string name="no_saved_locations_text">Uimh Suímh Sábháilte…</string>
     <string name="save_location_text">Sábháil Suíomh</string>
+    <string name="search_text">Cuardach</string>
+    <string name="event_text">Imeachtaí Near</string>
 </resources>
