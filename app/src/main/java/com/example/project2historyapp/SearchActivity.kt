@@ -63,7 +63,7 @@ class SearchActivity : ComponentActivity() {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     LocationSearch(
-                        "Ciaran",
+                        user,
                         LatLng(latitude, longitude),
                         startTime,
                         endTime,

@@ -80,6 +80,7 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.toString
 
 class MainMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,10 +90,13 @@ class MainMenuActivity : ComponentActivity() {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val user = intent.getStringExtra("EMAIL")
-                    user?.let {
+
+                    if (user != null)
+                    {
                         MyMap(user, Modifier.padding(innerPadding))
+                    } else {
+                        MyMap("UNDEFINED_USER", Modifier.padding(innerPadding))
                     }
-                    MyMap("UNDEFINED_USER", Modifier.padding(innerPadding))
                 }
             }
         }
@@ -102,6 +106,7 @@ class MainMenuActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyMap(user: String, modifier: Modifier = Modifier) {
+    Log.d("USERNAME", user)
     val context = LocalContext.current
     val staffordVA = LatLng(38.4221, -77.4083)
     var markerPosition by remember { mutableStateOf<LatLng?>(staffordVA) }

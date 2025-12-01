@@ -64,7 +64,7 @@ class SavedLocationsActivity : ComponentActivity() {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SavedLocations(
-                        "Ciaran",
+                        user,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

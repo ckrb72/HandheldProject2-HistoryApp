@@ -10,7 +10,11 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.net.URLEncoder
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.format.SignStyle
+import java.time.temporal.ChronoField
 import java.util.concurrent.TimeUnit
 
 object QueryManager {
@@ -232,8 +236,22 @@ LIMIT 100
     }
 
     fun formatDate(date: String): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-        val localDate = LocalDate.parse(date, formatter)
+        val parser = DateTimeFormatterBuilder()
+            .appendValue(ChronoField.YEAR, 1, 10, SignStyle.NORMAL)
+            .appendLiteral('-')
+            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+            .appendLiteral('-')
+            .appendValue(ChronoField.DAY_OF_MONTH, 2)
+            .appendLiteral('T')
+            .appendValue(ChronoField.HOUR_OF_DAY, 2)
+            .appendLiteral(':')
+            .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+            .appendLiteral(':')
+            .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+            .appendOffset("+HH:MM", "Z")
+            .toFormatter()
+        val localDate = OffsetDateTime.parse(date, parser).toLocalDate()
+
         val outputFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy")
         return localDate.format(outputFormat)
     }
