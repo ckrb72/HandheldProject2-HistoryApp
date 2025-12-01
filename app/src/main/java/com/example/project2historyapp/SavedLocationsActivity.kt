@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,18 +69,8 @@ class SavedLocationsActivity : ComponentActivity() {
 @Composable
 fun SavedLocations(user: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    var eventList by remember { mutableStateOf<List<HistoricalEvent>>(listOf()) }
+    val locationList = remember { mutableStateListOf<LocationData>() }
     var isLoading by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        isLoading = true
-        val result = withContext(Dispatchers.IO) {
-            QueryManager.retrieveHistoricalEvents(LatLng(38.4221, -77.4083), 100)
-        }
-        eventList = result
-        isLoading = false
-    }
-
 
     remember {
         val dbRef = FirebaseDatabase.getInstance().getReference("users/$user/locations")
@@ -90,6 +81,9 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                     Toast.makeText(context, "No Database Data Found", Toast.LENGTH_SHORT).show()
                     return
                 }
+                locationList.clear()
+                snapshot.children.mapNotNull { it.getValue(LocationData::class.java) }
+                    .forEach { locationList.add(it)}
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -122,10 +116,18 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxSize()
                     .padding(10.dp, 0.dp, 10.dp, 30.dp)
             ) {
-                items(eventList) { event ->
-                    LocationCard(event, onClick = { /*TODO*/ })
+                items(locationList) { location ->
+                    LocationCard(location, onClick = { /*TODO*/ })
                 }
             }
+        }
+
+        if (locationList.size == 0) {
+            Text(
+                context.getString(R.string.no_saved_locations_text),
+                modifier = Modifier.align(Alignment.Center),
+                fontSize = 20.sp
+                )
         }
 
         if (isLoading) {
@@ -138,7 +140,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LocationCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun LocationCard(savedLocation: LocationData, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         modifier = modifier.fillMaxSize()
             .padding(10.dp),
@@ -147,8 +149,8 @@ fun LocationCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, 
     ) {
         Column {
             Text(savedLocation.name)
-            Text(savedLocation.date)
-            Text("${savedLocation.location.latitude} ${savedLocation.location.longitude}")
+            Text("${savedLocation.latitude} ${savedLocation.longitude}")
+            Text("${savedLocation.start} ${savedLocation.end}")
         }
     }
 }

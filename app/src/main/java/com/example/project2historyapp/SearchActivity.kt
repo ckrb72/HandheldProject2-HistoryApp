@@ -42,6 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.Firebase
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -51,14 +54,19 @@ class SearchActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val locationName = intent.getStringExtra("LOCATION_NAME").toString()
+        val startTime = intent.getLongExtra("START_TIME", 0)
+        val endTime = intent.getLongExtra("END_TIME", 0)
+        val latitude = intent.getDoubleExtra("LATITUDE", 0.0)
+        val longitude = intent.getDoubleExtra("LONGITUDE", 0.0)
+        val user = intent.getStringExtra("EMAIL")
         setContent {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     LocationSearch(
                         "Ciaran",
-                        LatLng(0.0, 0.0),
-                        0,
-                        0,
+                        LatLng(latitude, longitude),
+                        startTime,
+                        endTime,
                         locationName,
                         modifier = Modifier.padding(innerPadding)
                     )
@@ -137,6 +145,9 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                 colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
                 onClick = {
                     // Save location to database
+                    val locationRef = Firebase.database.getReference("users/$user/locations")
+                    val child = locationRef.child(locationName)
+                    child.setValue(LocationData(latLng.latitude, latLng.longitude, startTime, endTime, locationName))
                 }
             ) {
                 Text("Save Location")

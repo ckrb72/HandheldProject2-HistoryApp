@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Project2HistoryApp</string>
+    <string name="title_activity_main_menu">MainMenuActivity</string>
+    <string name="title_activity_statistics">StatisticsActivity</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_saved_locations">SavedLocationsActivity</string>
+    <string name="resolving_address_message">Dirección de Resolución…</string>
+    <string name="address_result_message">Resultados Para:</string>
+    <string name="statistics_button">Estadística</string>
+    <string name="saved_locations_button">Ubicaciones Guardadas</string>
+    <string name="set_date_button">Establecer Fecha</string>
+    <string name="email_placeholder">Correo Electrónico</string>
+    <string name="password_placeholder">Contraseña</string>
+    <string name="confirm_password_placeholder">Confirmar Contraseña</string>
+    <string name="save_login_text">Guardar Información de Inicio de Sesión</string>
+    <string name="login_text">Acceso</string>
+    <string name="sign_up_text">Inscribirse</string>
+    <string name="register_text">Registro</string>
+    <string name="back_text">Atrás</string>
+    <string name="password_match_error">Las Contraseñas No Coinciden!</string>
+    <string name="title_activity_search">SearchActivity</string>
+    <string name="no_saved_locations_text">No Hay Ubicaciones Guardadas…</string>
+</resources>
