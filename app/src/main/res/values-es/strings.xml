@@ -26,4 +26,5 @@
     <string name="event_text">Eventos cerca</string>
     <string name="no_events_text">No Se Encontraron Eventos…</string>
     <string name="save_text">Ahorrar</string>
+    <string name="no_article_text">No Hay Artículo Para Evento</string>
 </resources>

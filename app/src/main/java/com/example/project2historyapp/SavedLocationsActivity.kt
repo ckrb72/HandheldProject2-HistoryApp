@@ -110,7 +110,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
         Column(
             modifier = Modifier.fillMaxWidth(0.8f)
                 .fillMaxHeight(0.9f)
-                .background(Color(1.0f, 1.0f, 1.0f, 0.75f)),
+                .background(Color(0.906f, 0.843f, 0.639f, 0.659f)),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(

@@ -57,7 +57,7 @@ class StatisticsActivity : ComponentActivity() {
 fun Stats(user: String, modifier: Modifier = Modifier) {
     var locationCount by remember { mutableLongStateOf(0) }
     var mostVisitedCountry by remember { mutableStateOf<LocationVisitCount>(LocationVisitCount()) }
-    var mostSavedCountry by remember { mutableStateOf("") }
+    var mostSavedCountry by remember { mutableStateOf("None") }
     // stats/continents/list_of_continents_with_count
     // stats/countries/list_of_countries_with_count
 
@@ -88,18 +88,18 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) {
                     locationCount = 0
+                    mostSavedCountry = "None"
                 } else {
                     locationCount = snapshot.childrenCount
-                }
 
-                // Count up each instance of each country
-                val countryMap = mutableMapOf<String, Long>()
-                snapshot.children.mapNotNull { it.getValue(LocationData::class.java) }
-                    .forEach { location ->
-                    countryMap[location.country] = countryMap.getOrDefault(location.country, 0) + 1
+                    // Count up each instance of each country
+                    val countryMap = mutableMapOf<String, Long>()
+                    snapshot.children.mapNotNull { it.getValue(LocationData::class.java) }
+                        .forEach { location ->
+                            countryMap[location.country] = countryMap.getOrDefault(location.country, 0) + 1
+                        }
+                    mostSavedCountry = countryMap.maxBy { it.value }.key
                 }
-                mostSavedCountry = countryMap.maxBy { it.value }.key
-
             }
             override fun onCancelled(error: DatabaseError) {
 

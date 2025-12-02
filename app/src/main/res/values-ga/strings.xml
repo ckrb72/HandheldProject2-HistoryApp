@@ -26,4 +26,5 @@
     <string name="event_text">Imeachtaí Near</string>
     <string name="no_events_text">Níor Aimsíodh Imeachtaí Ar Bith…</string>
     <string name="save_text">Shábháil</string>
+    <string name="no_article_text">Gan Airteagal Le Haghaidh Imeachta</string>
 </resources>

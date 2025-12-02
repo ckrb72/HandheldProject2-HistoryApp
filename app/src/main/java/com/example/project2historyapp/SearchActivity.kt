@@ -1,8 +1,10 @@
 package com.example.project2historyapp
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -53,6 +55,7 @@ import com.google.firebase.database.Transaction
 import com.google.firebase.database.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.core.net.toUri
 
 class SearchActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -145,12 +148,17 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                     EventCard(
                         event,
                         onClick = {
-                            event.article.let {
-                                Log.d("ARTICLE", "ARTICLE FOUND")
+                            if (event.article != null) {
+                                val intent = Intent(Intent.ACTION_VIEW, event.article.toUri())
+                                context.startActivity(intent)
+                            } else {
+                                Toast.makeText(context, context.getString(R.string.no_article_text), Toast.LENGTH_SHORT).show()
                             }
                         },
                         onSave = {
-
+                            val dbRef = Firebase.database.getReference("users/$user/events")
+                            val child = dbRef.child(event.name)
+                            child.setValue(event)
                         }
                     )
                 }
