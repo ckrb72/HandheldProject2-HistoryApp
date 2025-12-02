@@ -50,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
@@ -188,7 +189,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 Card(
                     shape = RectangleShape,
                     modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 5.dp),
-                    colors = CardColors(Color(0.239f, 0.29f, 0.431f, 1.0f), Color.White, Color.White, Color.White),
+                    colors = CardColors(Color(0.239f, 0.29f, 0.431f, 0.60f), Color.White, Color.White, Color.White),
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -252,11 +253,13 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(40.dp, 0.dp, 0.dp, 32.dp),
                 onClick = {
                     showMenu = !showMenu
-                }
+                },
+                containerColor = Color(0.616f, 0.494f, 0.337f, 1.0f)
             ) {
                 Icon(
                     painter = painterResource(if (showMenu) R.drawable.outline_arrow_drop_up_24 else R.drawable.outline_arrow_drop_down_24),
-                    contentDescription = "Menu"
+                    contentDescription = "Menu",
+                    tint = Color.White
                 )
             }
         }

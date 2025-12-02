@@ -85,7 +85,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
         dbRef.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) {
-                    Log.d("ERROR", "No data")
+                    locationList.clear()
                     return
                 }
                 locationList.clear()

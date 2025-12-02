@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -56,10 +60,9 @@ class StatisticsActivity : ComponentActivity() {
 @Composable
 fun Stats(user: String, modifier: Modifier = Modifier) {
     var locationCount by remember { mutableLongStateOf(0) }
-    var mostVisitedCountry by remember { mutableStateOf<LocationVisitCount>(LocationVisitCount()) }
+    var mostVisitedCountry by remember { mutableStateOf(LocationVisitCount()) }
     var mostSavedCountry by remember { mutableStateOf("None") }
-    // stats/continents/list_of_continents_with_count
-    // stats/countries/list_of_countries_with_count
+    var searchCount by remember { mutableIntStateOf(0) }
 
     remember {
         val statsRef = FirebaseDatabase.getInstance().getReference("users/$user/countries")
@@ -82,6 +85,24 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
                 Log.d("ERROR", error.message)
             }
         })
+
+        val searchesRef = FirebaseDatabase.getInstance().getReference("users/$user/searches")
+        searchesRef.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!snapshot.exists()) {
+                    searchCount = 0
+                    return
+                }
+
+                snapshot.getValue(Int::class.java).let { count ->
+                    searchCount = count ?: 0
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        })
+
 
         val locationRef = FirebaseDatabase.getInstance().getReference("users/$user/locations")
         locationRef.addValueEventListener(object: ValueEventListener{
@@ -107,32 +128,34 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
         })
     }
 
-    Column(
+    Box(
         modifier = modifier.fillMaxSize()
             .paint(
                 painterResource(R.drawable.stats_background),
                 contentScale = ContentScale.FillBounds
             ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
-        Card(
+        Column(
             modifier = Modifier.fillMaxWidth(0.8f)
                 .fillMaxHeight(0.9f)
-                .alpha(0.75f),
-            shape = RectangleShape
+                .background(Color(0.906f, 0.843f, 0.639f, 0.659f)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly,
+
         ) {
             Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.fillMaxWidth()
+                    .fillMaxHeight(0.75f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text("User: ")
-                Text("Most Visited Continent")
                 Text("Most Visited Country: ${mostVisitedCountry.name}")
                 Text("Saved Locations: $locationCount")
-                Text("Most Visited Time Period")
-                Text("Favorite Time Period (most saved time period)")
-                Text("Favorite Country (most saved country): $mostSavedCountry")
+                Text("Most Visited Time Period: ")
+                Text("Most Saved Time Period: ")
+                Text("Most Saved Country: $mostSavedCountry")
+                Text("Times Searched: $searchCount")
             }
         }
     }

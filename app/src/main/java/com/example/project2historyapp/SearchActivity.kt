@@ -86,6 +86,25 @@ class SearchActivity : ComponentActivity() {
                 // Optional: handle completion
             }
         })
+
+        Firebase.database
+            .getReference("users/$user/searches")
+            .runTransaction(object: Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                var data = currentData.getValue(Int::class.java) ?: 0
+                data++
+                currentData.value = data
+                return Transaction.success(currentData)
+            }
+
+            override fun onComplete(
+                error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?
+            ) {
+                // Optional: handle completion
+            }
+        })
+
+
         setContent {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
