@@ -26,4 +26,11 @@
     <string name="no_events_text">No Events Found…</string>
     <string name="save_text">Save</string>
     <string name="no_article_text">No Article For Event></string>
+    <string name="remove_text">Remove</string>
+    <string name="searches_text">Times Searched</string>
+    <string name="saved_locations_count">Saved Location Count</string>
+    <string name="most_visited_country">Most Visited Country</string>
+    <string name="most_saved_country">Most Saved Country</string>
+    <string name="saved_events_count">Saved Event Count</string>
+    <string name="average_search_radius">Average Search Radius</string>
 </resources>

@@ -294,6 +294,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 intent.putExtra("START_TIME", dateRangePickerState.selectedStartDateMillis)
                 intent.putExtra("END_TIME", dateRangePickerState.selectedEndDateMillis)
                 intent.putExtra("LOCATION_NAME", addressInfo)
+                intent.putExtra("RADIUS", 100)
                 context.startActivity(intent)
         }) {
             Text(context.getString(R.string.search_text))

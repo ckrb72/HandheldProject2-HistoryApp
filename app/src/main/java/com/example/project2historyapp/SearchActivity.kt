@@ -71,6 +71,7 @@ class SearchActivity : ComponentActivity() {
         val latitude = intent.getDoubleExtra("LATITUDE", 0.0)
         val longitude = intent.getDoubleExtra("LONGITUDE", 0.0)
         val user = intent.getStringExtra("EMAIL").toString()
+        val radius = intent.getIntExtra("RADIUS", 0)
 
         val locationInfo = locationName.split(", ")
         val countryRef = Firebase.database.getReference("users/$user/countries")
@@ -86,7 +87,7 @@ class SearchActivity : ComponentActivity() {
             override fun onComplete(
                 error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?
             ) {
-                // Optional: handle completion
+
             }
         })
 
@@ -103,7 +104,7 @@ class SearchActivity : ComponentActivity() {
             override fun onComplete(
                 error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?
             ) {
-                // Optional: handle completion
+
             }
         })
 
@@ -117,6 +118,7 @@ class SearchActivity : ComponentActivity() {
                         startTime,
                         endTime,
                         locationName,
+                        radius,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -126,7 +128,7 @@ class SearchActivity : ComponentActivity() {
 }
 
 @Composable
-fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long, locationName: String, modifier: Modifier = Modifier) {
+fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long, locationName: String, radius: Int, modifier: Modifier = Modifier) {
     var eventList by remember { mutableStateOf<List<HistoricalEvent>>(listOf()) }
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -136,7 +138,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
         isLoading = true
 
         val result = withContext(Dispatchers.IO) {
-            QueryManager.retrieveHistoricalEvents(latLng, startString, endString, 100)
+            QueryManager.retrieveHistoricalEvents(latLng, startString, endString, radius)
         }
 
         eventList = result
@@ -153,7 +155,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.85f)
                 .fillMaxHeight(0.9f)
                 .background(Color(0.906f, 0.843f, 0.639f, 0.659f)),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -162,7 +164,8 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                 "${context.getString(R.string.event_text)}: $locationName",
                 fontSize = 20.sp,
                 modifier = Modifier.padding(20.dp),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = Color.White
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
@@ -211,7 +214,6 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                 shape = RectangleShape,
                 colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
                 onClick = {
-                    // Save location to database
                     val locationRef = Firebase.database.getReference("users/$user/locations")
                     val child = locationRef.push()
                     child.setValue(LocationData(latLng.latitude, latLng.longitude, startTime, endTime, locationName, locationName.split(", ")[2], child.key.toString()))
@@ -255,22 +257,21 @@ fun EventCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onC
 
         Row(
             modifier = Modifier.fillMaxSize()
-                .padding(10.dp)
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ){
             Column(
-                modifier = Modifier.fillMaxWidth(0.70f)
-                    .fillMaxHeight(),
+                modifier = Modifier.fillMaxWidth(0.70f),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(savedLocation.name)
-                Text(savedLocation.date, fontSize = 12.sp)
-                Text("${savedLocation.location.latitude} ${savedLocation.location.longitude}", fontSize = 12.sp)
+                Text(savedLocation.name, textAlign = TextAlign.Center)
+                Text(savedLocation.date, fontSize = 12.sp, textAlign = TextAlign.Center)
+                Text("${"%.2f".format(savedLocation.location.latitude)} ${"%.2f".format(savedLocation.location.longitude)}", fontSize = 12.sp, textAlign = TextAlign.Center)
             }
 
             Column(
-                modifier = Modifier.fillMaxWidth()
-                    .fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -325,6 +326,6 @@ fun EventCardPreview() {
 @Composable
 fun GreetingPreview4() {
     Project2HistoryAppTheme {
-        LocationSearch("Ciaran", LatLng(0.0, 0.0), 0, 0, "Buffalo")
+        LocationSearch("Ciaran", LatLng(0.0, 0.0), 0, 0, "Buffalo", 100)
     }
 }

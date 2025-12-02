@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -108,7 +110,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.85f)
                 .fillMaxHeight(0.9f)
                 .background(Color(0.906f, 0.843f, 0.639f, 0.659f)),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -116,7 +118,8 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
             Text(
                 context.getString(R.string.saved_locations_button),
                 fontSize = 25.sp,
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(20.dp),
+                color = Color(0.267f, 0.165f, 0.02f, 1.0f)
             )
 
             LazyColumn(
@@ -166,8 +169,9 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
             Text(
                 context.getString(R.string.no_saved_locations_text),
                 modifier = Modifier.align(Alignment.Center),
-                fontSize = 20.sp
-                )
+                fontSize = 20.sp,
+                color = Color(0.267f, 0.165f, 0.02f, 1.0f)
+            )
         }
 
         if (isLoading) {
@@ -181,22 +185,65 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun LocationCard(savedLocation: LocationData, modifier: Modifier = Modifier, onClick: () -> Unit, onRemove: () -> Unit) {
+    val context = LocalContext.current
+    val startString by remember { mutableStateOf(convertMillisToDate(savedLocation.start)) }
+    val endString by remember { mutableStateOf(convertMillisToDate(savedLocation.end))}
+
     Card(
         modifier = modifier.fillMaxSize()
             .padding(10.dp),
         shape = RectangleShape,
+        colors = CardColors(Color(0.686f, 0.62f, 0.42f, 1.0f), Color.White, Color.White, Color.White),
         onClick = onClick
     ) {
-        Column {
-            Text(savedLocation.name)
-            Text("${savedLocation.latitude} ${savedLocation.longitude}")
-            Text("${savedLocation.start} ${savedLocation.end}")
-            Button(
-                shape = RectangleShape,
-                colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
-                onClick = onRemove
+        Row(
+            modifier = Modifier.fillMaxSize()
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(0.7f),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Remove")
+                Text(
+                    savedLocation.name,
+                    textAlign = TextAlign.Center,
+                    fontSize = 12.sp
+                )
+                Text(
+                    "${"%.2f".format(savedLocation.latitude)} ${"%.2f".format(savedLocation.longitude)}",
+                    textAlign = TextAlign.Center,
+                    fontSize = 10.sp
+                )
+                Text(
+                    "Start: $startString",
+                    textAlign = TextAlign.Center,
+                    fontSize = 10.sp
+                )
+                Text(
+                    "End: $endString",
+                    textAlign = TextAlign.Center,
+                    fontSize = 10.sp
+                )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    shape = RectangleShape,
+                    colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                    onClick = onRemove
+                ) {
+                    Text(
+                        context.getString(R.string.remove_text),
+                        textAlign = TextAlign.Center,
+                        fontSize = 8.sp
+                    )
+                }
             }
         }
     }

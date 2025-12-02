@@ -27,4 +27,11 @@
     <string name="no_events_text">No Se Encontraron Eventos…</string>
     <string name="save_text">Ahorrar</string>
     <string name="no_article_text">No Hay Artículo Para Evento</string>
+    <string name="remove_text">Eliminar</string>
+    <string name="searches_text">Veces buscadas</string>
+    <string name="saved_locations_count">Recuento De Ubicaciones Guardadas</string>
+    <string name="most_visited_country">País Más Visitado</string>
+    <string name="most_saved_country">País Más Salvado</string>
+    <string name="saved_events_count">Recuento De Eventos Guardados</string>
+    <string name="average_search_radius">Radio De Búsqueda Promedio</string>
 </resources>
