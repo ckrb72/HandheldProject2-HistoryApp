@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -71,7 +72,7 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
     var mostVisitedCountryCount by remember { mutableLongStateOf(0) }
     var mostSavedCountry by remember { mutableStateOf("None") }
     var mostSavedCountryCount by remember { mutableLongStateOf(0) }
-    var searchCount by remember { mutableIntStateOf(0) }
+    var searchInfo by remember { mutableStateOf(SearchData(0, 0.0)) }
     var eventCount by remember { mutableLongStateOf(0) }
     val context = LocalContext.current
 
@@ -116,12 +117,12 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
         searchesRef.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) {
-                    searchCount = 0
+                    searchInfo = SearchData(0, 0.0)
                     return
                 }
 
-                snapshot.getValue(Int::class.java)?.let { count ->
-                    searchCount = count
+                snapshot.getValue(SearchData::class.java)?.let { data ->
+                    searchInfo = data
                 }
             }
             override fun onCancelled(error: DatabaseError) {
@@ -199,7 +200,7 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    "${context.getString(R.string.average_search_radius)}: ",
+                    "${context.getString(R.string.average_search_radius)}: ${searchInfo.avgRadius}",
                     color = Color(0.267f, 0.165f, 0.02f, 1.0f),
                     textAlign = TextAlign.Center
                 )
@@ -209,7 +210,7 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    "${context.getString(R.string.searches_text)}: $searchCount",
+                    "${context.getString(R.string.searches_text)}: ${searchInfo.count}",
                     color = Color(0.267f, 0.165f, 0.02f, 1.0f),
                     textAlign = TextAlign.Center
                 )
