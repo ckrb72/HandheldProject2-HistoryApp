@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Project2HistoryApp</string>
+    <string name="title_activity_main_menu">MainMenuActivity</string>
+    <string name="title_activity_statistics">StatisticsActivity</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_saved_locations">SavedLocationsActivity</string>
+    <string name="resolving_address_message">Seoladh Réitigh…</string>
+    <string name="address_result_message">Torthaí Le haghaidh:</string>
+    <string name="statistics_button">Staitisticí</string>
+    <string name="saved_locations_button">Suímh Sábháilte</string>
+    <string name="set_date_button">Dáta Socraithe</string>
+    <string name="email_placeholder">Ríomhphost</string>
+    <string name="password_placeholder">Pasfhocal</string>
+    <string name="confirm_password_placeholder">Deimhnigh Pasfhocal</string>
+    <string name="save_login_text">Sábháil Faisnéise Logáil Isteach</string>
+    <string name="login_text">Logáil isteach</string>
+    <string name="sign_up_text">Cláraigh</string>
+    <string name="register_text">Clár</string>
+    <string name="back_text">Ar ais</string>
+    <string name="password_match_error">Ní Hionann na Pasfhocail!</string>
+    <string name="title_activity_search">SearchActivity</string>
+    <string name="no_saved_locations_text">Uimh Suímh Sábháilte…</string>
+    <string name="save_location_text">Sábháil Suíomh</string>
+    <string name="search_text">Cuardach</string>
+    <string name="event_text">Imeachtaí Near</string>
+    <string name="no_events_text">Níor Aimsíodh Imeachtaí Ar Bith…</string>
+    <string name="save_text">Shábháil</string>
+    <string name="no_article_text">Gan Airteagal Le Haghaidh Imeachta</string>
+    <string name="remove_text">Bain</string>
+    <string name="searches_text">Times Cuardach</string>
+    <string name="saved_locations_count">Comhaireamh Suímh Sábháilte</string>
+    <string name="most_visited_country">An Tír Is Mó Ar Tugadh Cuairt Uirthi</string>
+    <string name="most_saved_country">An Tír is Shábháil</string>
+    <string name="saved_events_count">Comhaireamh Imeachta Sábháilte</string>
+    <string name="average_search_radius">Líneag Meán Cuardach</string>
+    <string name="set_radius_button">Socraigh Líneag</string>
+    <string name="radius_text">Líneag</string>
+    <string name="saved_events_button">Imeachtaí Sábháilte</string>
+</resources>
