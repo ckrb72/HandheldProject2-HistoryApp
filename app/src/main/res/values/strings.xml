@@ -35,4 +35,6 @@
     <string name="average_search_radius">Average Search Radius</string>
     <string name="set_radius_button">Set Radius</string>
     <string name="radius_text">Radius</string>
+    <string name="title_activity_saved_events">SavedEventsActivity</string>
+    <string name="saved_events_button">Saved Events</string>
 </resources>

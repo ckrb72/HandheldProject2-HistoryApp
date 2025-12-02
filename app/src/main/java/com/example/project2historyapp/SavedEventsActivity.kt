@@ -1,7 +1,6 @@
 package com.example.project2historyapp
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -27,8 +26,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,83 +43,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
-import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.MutableData
-import com.google.firebase.database.Transaction
-import com.google.firebase.database.database
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import androidx.core.net.toUri
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
+import com.google.firebase.database.ValueEventListener
 
-class SearchActivity : ComponentActivity() {
+class SavedEventsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val locationName = intent.getStringExtra("LOCATION_NAME").toString()
-        val startTime = intent.getLongExtra("START_TIME", 0)
-        val endTime = intent.getLongExtra("END_TIME", 0)
-        val latitude = intent.getDoubleExtra("LATITUDE", 0.0)
-        val longitude = intent.getDoubleExtra("LONGITUDE", 0.0)
         val user = intent.getStringExtra("EMAIL").toString()
-        val radius = intent.getIntExtra("RADIUS", 0)
-
-        val locationInfo = locationName.split(", ")
-        val countryRef = Firebase.database.getReference("users/$user/countries")
-        val child = countryRef.child(locationInfo[2])
-        child.runTransaction(object: Transaction.Handler {
-            override fun doTransaction(currentData: MutableData): Transaction.Result {
-                val data = currentData.getValue(LocationVisitCount::class.java) ?: LocationVisitCount(locationInfo[2], 0)
-                data.count++
-                currentData.value = data
-                return Transaction.success(currentData)
-            }
-
-            override fun onComplete(
-                error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?
-            ) {
-
-            }
-        })
-
-        Firebase.database
-            .getReference("users/$user/searches")
-            .runTransaction(object: Transaction.Handler {
-            override fun doTransaction(currentData: MutableData): Transaction.Result {
-                val data = currentData.getValue(SearchData::class.java) ?: SearchData(0, 0.0)
-                val radiusSum = data.avgRadius * data.count
-                data.count++
-                data.avgRadius = (radiusSum + radius) / data.count
-                currentData.value = data
-                return Transaction.success(currentData)
-            }
-
-            override fun onComplete(
-                error: DatabaseError?, committed: Boolean, snapshot: DataSnapshot?
-            ) {
-
-            }
-        })
-
-
         setContent {
             Project2HistoryAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LocationSearch(
+                    SavedEvents(
                         user,
-                        LatLng(latitude, longitude),
-                        startTime,
-                        endTime,
-                        locationName,
-                        radius,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -130,23 +69,31 @@ class SearchActivity : ComponentActivity() {
 }
 
 @Composable
-fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long, locationName: String, radius: Int, modifier: Modifier = Modifier) {
-    var eventList by remember { mutableStateOf<List<HistoricalEvent>>(listOf()) }
-    var isLoading by remember { mutableStateOf(false) }
+fun SavedEvents(user: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val startString by remember { mutableStateOf(convertMillisToDate(startTime)) }
-    val endString by remember { mutableStateOf(convertMillisToDate(endTime)) }
-    LaunchedEffect(Unit) {
-        isLoading = true
+    val eventList = remember { mutableStateListOf<HistoricalEvent>() }
+    var isLoading by remember { mutableStateOf(false) }
+    Log.d("USER", user)
 
-        val result = withContext(Dispatchers.IO) {
-            QueryManager.retrieveHistoricalEvents(latLng, startString, endString, radius)
-        }
+    remember {
+        val dbRef = FirebaseDatabase.getInstance().getReference("users/$user/events")
 
-        eventList = result
-        isLoading = false
+        dbRef.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!snapshot.exists()) {
+                    eventList.clear()
+                    return
+                }
+                eventList.clear()
+                snapshot.children.mapNotNull { it.getValue(HistoricalEvent::class.java) }
+                    .forEach { eventList.add(it) }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.d("ERROR", error.message)
+            }
+        })
     }
-
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -163,18 +110,18 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "${context.getString(R.string.event_text)}: $locationName",
-                fontSize = 20.sp,
+                context.getString(R.string.saved_locations_button),
+                fontSize = 25.sp,
                 modifier = Modifier.padding(20.dp),
-                textAlign = TextAlign.Center,
-                color = Color.White
+                color = Color(0.267f, 0.165f, 0.02f, 1.0f)
             )
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
                     .padding(10.dp, 0.dp, 10.dp, 30.dp)
             ) {
                 items(eventList) { event ->
-                    EventCard(
+                    EventRemovableCard(
                         event,
                         onClick = {
                             if (event.article != null) {
@@ -184,10 +131,9 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                                 Toast.makeText(context, context.getString(R.string.no_article_text), Toast.LENGTH_SHORT).show()
                             }
                         },
-                        onSave = {
-                            val dbRef = Firebase.database.getReference("users/$user/events")
-                            val child = dbRef.child(event.name)
-                            child.setValue(event)
+                        onRemove = {
+                            val dbRef = FirebaseDatabase.getInstance().getReference("users/$user/events")
+                            dbRef.child(event.name).removeValue()
                         }
                     )
                 }
@@ -196,9 +142,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
 
         Row(
             modifier = modifier.align(Alignment.BottomCenter)
-                .padding(0.dp, 0.dp, 0.dp, 50.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .padding(0.dp, 0.dp, 0.dp, 35.dp)
         ) {
             Button(
                 shape = RectangleShape,
@@ -212,29 +156,16 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                 Text(context.getString(R.string.back_text))
             }
 
-            Button(
-                shape = RectangleShape,
-                colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
-                onClick = {
-                    val locationRef = Firebase.database.getReference("users/$user/locations")
-                    val child = locationRef.push()
-                    child.setValue(LocationData(latLng.latitude, latLng.longitude, startTime, endTime, locationName, locationName.split(", ")[2], child.key.toString()))
-                }
-            ) {
-                Text(context.getString(R.string.save_location_text))
-            }
-
         }
 
-        if (eventList.isEmpty() && !isLoading) {
+        if (eventList.isEmpty()) {
             Text(
-                context.getString(R.string.no_events_text),
+                context.getString(R.string.no_saved_locations_text),
+                modifier = Modifier.align(Alignment.Center),
                 fontSize = 20.sp,
-                modifier = Modifier.padding(20.dp),
-                textAlign = TextAlign.Center
+                color = Color(0.267f, 0.165f, 0.02f, 1.0f)
             )
         }
-
 
         if (isLoading) {
             CircularProgressIndicator(
@@ -246,7 +177,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
 }
 
 @Composable
-fun EventCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onClick: () -> Unit, onSave: () -> Unit) {
+fun EventRemovableCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onClick: () -> Unit, onRemove: () -> Unit) {
     val context = LocalContext.current
 
     Card(
@@ -282,10 +213,10 @@ fun EventCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onC
                         .fillMaxWidth(),
                     shape = RectangleShape,
                     colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
-                    onClick = onSave
+                    onClick = onRemove
                 ) {
                     Text(
-                        context.getString(R.string.save_text),
+                        context.getString(R.string.remove_text),
                         textAlign = TextAlign.Center,
                         fontSize = 8.sp)
                 }
@@ -294,27 +225,10 @@ fun EventCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onC
     }
 }
 
-fun convertMillisToDate(millis: Long): String {
-    val instant = Instant.ofEpochMilli(millis)
-    val date = instant.atZone(ZoneOffset.UTC).toLocalDateTime()
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    return date.format(formatter)
-}
-
 @Preview(showBackground = true)
 @Composable
-fun EventCardPreview() {
+fun GreetingPreview5() {
     Project2HistoryAppTheme {
-        EventCard(HistoricalEvent("Test", "Test", 0.0, 0.0, "Test"), onClick = {}) {
-
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview4() {
-    Project2HistoryAppTheme {
-        LocationSearch("Ciaran", LatLng(0.0, 0.0), 0, 0, "Buffalo", 100)
+        SavedEvents("Ciaran")
     }
 }

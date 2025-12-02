@@ -36,4 +36,5 @@
     <string name="average_search_radius">Radio De Búsqueda Promedio</string>
     <string name="set_radius_button">Establecer Radio</string>
     <string name="radius_text">Radio</string>
+    <string name="saved_events_button">Eventos Guardados</string>
 </resources>

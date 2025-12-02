@@ -239,10 +239,13 @@ LIMIT 100
                     } catch(error: JSONException) {
 
                     }
+
+                    val location = getLatLngFromPoint(currentEvent.getJSONObject("location").getString("value"))
                     val event = HistoricalEvent(
                         name = currentEvent.getJSONObject("eventLabel").getString("value"),
                         date = formatDate(currentEvent.getJSONObject("time").getString("value")),
-                        location = getLatLngFromPoint(currentEvent.getJSONObject("location").getString("value")),
+                        latitude = location.latitude,
+                        longitude = location.longitude,
                         article = article
                     )
 

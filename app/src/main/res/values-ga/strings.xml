@@ -36,4 +36,5 @@
     <string name="average_search_radius">Líneag Meán Cuardach</string>
     <string name="set_radius_button">Socraigh Líneag</string>
     <string name="radius_text">Líneag</string>
+    <string name="saved_events_button">Imeachtaí Sábháilte</string>
 </resources>

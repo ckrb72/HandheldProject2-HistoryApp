@@ -92,7 +92,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                 }
                 locationList.clear()
                 snapshot.children.mapNotNull { it.getValue(LocationData::class.java) }
-                    .forEach { locationList.add(it)}
+                    .forEach { locationList.add(it) }
             }
 
             override fun onCancelled(error: DatabaseError) {
