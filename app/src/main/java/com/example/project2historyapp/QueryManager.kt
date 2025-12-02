@@ -31,12 +31,48 @@ object QueryManager {
         client = builder.build()
     }
 
-    suspend fun retrieveHistoricalEvents(location: LatLng, radius: Int): List<HistoricalEvent> {
+    suspend fun retrieveHistoricalEvents(location: LatLng, startTime: String, endTime: String, radius: Int): List<HistoricalEvent> {
 
         val query: String = """
         SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time ?article WHERE {
-            # Berlin coordinates
-            wd:Q64 wdt:P625 ?berlinLoc .
+        SERVICE wikibase:around {
+            ?event wdt:P625 ?location .
+            bd:serviceParam wikibase:center "Point(${location.longitude} ${location.latitude})"^^geo:wktLiteral ;
+                            wikibase:radius "${radius}" ;
+                            wikibase:distance ?dist .
+        }
+
+        OPTIONAL { ?event wdt:P585 ?p585 . }
+        OPTIONAL { ?event wdt:P580 ?p580 . }
+        OPTIONAL { ?event wdt:P582 ?p582 . }
+
+        BIND(COALESCE(?p585, ?p580, ?p582) AS ?time)
+        FILTER(BOUND(?time))
+
+        FILTER(?time >= "${startTime}"^^xsd:dateTime &&
+               ?time <= "${endTime}"^^xsd:dateTime)
+
+        FILTER EXISTS {
+          VALUES ?type {
+            wd:Q1190554 wd:Q198 wd:Q1656682 wd:Q839954
+            wd:Q11707 wd:Q575759 wd:Q9259 wd:Q570116
+          }
+          ?event wdt:P31/wdt:P279* ?type .
+        }
+
+        OPTIONAL {
+          ?article schema:about ?event .
+          ?article schema:isPartOf <https://en.wikipedia.org/> .
+        }
+
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+        }
+        ORDER BY ASC(?time)
+        LIMIT 50
+        """.trimIndent()
+
+        /*
+                SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time ?article WHERE {
             SERVICE wikibase:around {
                 ?event wdt:P625 ?location .
                 bd:serviceParam wikibase:center "Point(${location.longitude} ${location.latitude})"^^geo:wktLiteral ;
@@ -44,7 +80,7 @@ object QueryManager {
                                 wikibase:distance ?dist .
             }
             ?event wdt:P585 ?time.
-  
+
             FILTER EXISTS {
                 VALUES ?type {
                 wd:Q1190554    # event
@@ -58,18 +94,18 @@ object QueryManager {
                 }
                 ?event wdt:P31/wdt:P279* ?type .
             }
-            
+
             OPTIONAL {
                 ?article schema:about ?event .
                 ?article schema:isPartOf <https://en.wikipedia.org/> .
             }
-  
+
             SERVICE wikibase:label {
                 bd:serviceParam wikibase:language "en" .
             }
         } ORDER BY ASC(?time)
         LIMIT 50
-        """.trimIndent()
+         */
 
         /*
                     SELECT DISTINCT ?event ?eventLabel ?location ?distance ?time WHERE {

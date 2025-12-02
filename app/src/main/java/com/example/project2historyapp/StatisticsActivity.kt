@@ -1,5 +1,6 @@
 package com.example.project2historyapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,8 +33,10 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.project2historyapp.ui.theme.Project2HistoryAppTheme
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -63,6 +68,7 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
     var mostVisitedCountry by remember { mutableStateOf(LocationVisitCount()) }
     var mostSavedCountry by remember { mutableStateOf("None") }
     var searchCount by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
 
     remember {
         val statsRef = FirebaseDatabase.getInstance().getReference("users/$user/countries")
@@ -94,8 +100,8 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
                     return
                 }
 
-                snapshot.getValue(Int::class.java).let { count ->
-                    searchCount = count ?: 0
+                snapshot.getValue(Int::class.java)?.let { count ->
+                    searchCount = count
                 }
             }
             override fun onCancelled(error: DatabaseError) {
@@ -157,6 +163,20 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
                 Text("Most Saved Country: $mostSavedCountry")
                 Text("Times Searched: $searchCount")
             }
+        }
+
+        Button(
+            shape = RectangleShape,
+            colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+            modifier = modifier.align(Alignment.BottomCenter)
+                .padding(0.dp, 0.dp, 0.dp, 35.dp),
+            onClick = {
+                val intent = Intent(context, MainMenuActivity::class.java)
+                intent.putExtra("EMAIL", user)
+                context.startActivity(intent)
+            }
+        ) {
+            Text(context.getString(R.string.back_text))
         }
     }
 }

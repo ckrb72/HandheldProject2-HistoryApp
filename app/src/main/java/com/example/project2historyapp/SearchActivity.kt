@@ -56,6 +56,9 @@ import com.google.firebase.database.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class SearchActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,11 +130,13 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
     var eventList by remember { mutableStateOf<List<HistoricalEvent>>(listOf()) }
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val startString by remember { mutableStateOf(convertMillisToDate(startTime)) }
+    val endString by remember { mutableStateOf(convertMillisToDate(endTime)) }
     LaunchedEffect(Unit) {
         isLoading = true
 
         val result = withContext(Dispatchers.IO) {
-            QueryManager.retrieveHistoricalEvents(latLng, 100)
+            QueryManager.retrieveHistoricalEvents(latLng, startString, endString, 100)
         }
 
         eventList = result
@@ -297,6 +302,13 @@ fun EventCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onC
             }
         }
     }
+}
+
+fun convertMillisToDate(millis: Long): String {
+    val instant = Instant.ofEpochMilli(millis)
+    val date = instant.atZone(ZoneOffset.UTC).toLocalDateTime()
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    return date.format(formatter)
 }
 
 @Preview(showBackground = true)

@@ -77,6 +77,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.MutableData
 import com.google.firebase.database.Transaction
 import com.google.firebase.database.database
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
@@ -134,7 +135,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
         }
     }
     var showMenu by remember { mutableStateOf(false) }
-    val dateRangePickerState = rememberDateRangePickerState(yearRange = 1000..2025, initialSelectedStartDateMillis = System.currentTimeMillis(), initialSelectedEndDateMillis = System.currentTimeMillis())
+    val dateRangePickerState = rememberDateRangePickerState(yearRange = 1000..2025, initialSelectedStartDateMillis = prefs.getLong("START_DATE", System.currentTimeMillis()), initialSelectedEndDateMillis = prefs.getLong("END_DATE", System.currentTimeMillis()))
     var showDatePicker by remember { mutableStateOf(false) }
 
     // Check if the location permission is granted, if not, request it
@@ -170,6 +171,13 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                     state = MarkerState(position = position),
                     title = "${context.getString(R.string.address_result_message)} $addressInfo",
                     snippet = "(" + position.latitude + ", " + position.longitude + ")"
+                )
+
+                Circle(
+                    center = position,
+                    radius = 100000.0,
+                    fillColor = Color(0.863f, 0.831f, 0.525f, 0.3f),
+                    strokeWidth = 0.0f
                 )
             }
 
@@ -235,7 +243,16 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                         if (showDatePicker) {
 //                             Read dateRangePickerState.selectedStartDateMillis
                             DatePickerDialog(
-                                onDismissRequest = { showDatePicker = false },
+                                onDismissRequest = {
+                                    showDatePicker = false
+                                    dateRangePickerState.selectedStartDateMillis?.let {
+                                        prefs.edit { putLong("START_DATE", it) }
+                                        Log.d("TIME", it.toString())
+                                    }
+                                    dateRangePickerState.selectedEndDateMillis?.let {
+                                        prefs.edit { putLong("END_DATE", it) }
+                                    }
+                                },
                                 confirmButton = {
                                 },
                                 shape = RectangleShape
