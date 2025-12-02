@@ -116,7 +116,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
     val prefs = remember { context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE) }
     var markerPosition by remember { mutableStateOf<LatLng?>(LatLng(prefs.getFloat("MapLatitude", 0.0f).toDouble(), prefs.getFloat("MapLongitude", 0.0f).toDouble())) }
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(prefs.getFloat("MapLatitude", 0.0f).toDouble(), prefs.getFloat("MapLongitude", 0.0f).toDouble()), 10.0f)
+        position = CameraPosition.fromLatLngZoom(LatLng(prefs.getFloat("MapLatitude", 0.0f).toDouble(), prefs.getFloat("MapLongitude", 0.0f).toDouble()), prefs.getFloat("MapZoom", 10.0f))
     }
     var isLoading by remember { mutableStateOf(false) }
     var addressInfo by remember { mutableStateOf("Long Click on Map") }
@@ -142,6 +142,11 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
+
+    LaunchedEffect(cameraPositionState.position.zoom) {
+        prefs.edit { putFloat("MapZoom", cameraPositionState.position.zoom) }
+    }
+
 
     Box(
         contentAlignment = Alignment.Center

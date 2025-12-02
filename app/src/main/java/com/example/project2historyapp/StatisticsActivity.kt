@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,19 +55,27 @@ class StatisticsActivity : ComponentActivity() {
 
 @Composable
 fun Stats(user: String, modifier: Modifier = Modifier) {
-    var locationCount by remember { mutableStateOf<Long>(0) }
-
+    var locationCount by remember { mutableLongStateOf(0) }
+    var mostVisitedCountry by remember { mutableStateOf<LocationVisitCount>(LocationVisitCount()) }
+    var mostSavedCountry by remember { mutableStateOf("") }
     // stats/continents/list_of_continents_with_count
     // stats/countries/list_of_countries_with_count
 
     remember {
-        val statsRef = FirebaseDatabase.getInstance().getReference("users/$user/stats")
+        val statsRef = FirebaseDatabase.getInstance().getReference("users/$user/countries")
             statsRef.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.exists()) {
                     Log.d("ERROR", "No data")
                     return
                 }
+                snapshot.children.mapNotNull { it.getValue(LocationVisitCount::class.java) }
+                    .forEach { location ->
+                        if (location.count > locationCount) {
+                            locationCount = location.count
+                            mostVisitedCountry = location
+                        }
+                    }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -82,6 +91,15 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
                 } else {
                     locationCount = snapshot.childrenCount
                 }
+
+                // Count up each instance of each country
+                val countryMap = mutableMapOf<String, Long>()
+                snapshot.children.mapNotNull { it.getValue(LocationData::class.java) }
+                    .forEach { location ->
+                    countryMap[location.country] = countryMap.getOrDefault(location.country, 0) + 1
+                }
+                mostSavedCountry = countryMap.maxBy { it.value }.key
+
             }
             override fun onCancelled(error: DatabaseError) {
 
@@ -110,11 +128,11 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
             ) {
                 Text("User: ")
                 Text("Most Visited Continent")
-                Text("Most Visited Country")
+                Text("Most Visited Country: ${mostVisitedCountry.name}")
                 Text("Saved Locations: $locationCount")
                 Text("Most Visited Time Period")
                 Text("Favorite Time Period (most saved time period)")
-                Text("Favorite Country (most saved country)")
+                Text("Favorite Country (most saved country): $mostSavedCountry")
             }
         }
     }

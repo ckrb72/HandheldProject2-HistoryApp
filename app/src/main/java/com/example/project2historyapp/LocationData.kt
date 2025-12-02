@@ -7,5 +7,7 @@ data class LocationData(
     val longitude: Double = 0.0,
     val start: Long = 0,
     val end: Long = 0,
-    val name: String = ""
+    val name: String = "",
+    val country: String = "",
+    val dbKey: String = ""
 ): Serializable

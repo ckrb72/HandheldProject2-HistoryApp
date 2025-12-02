@@ -2,6 +2,7 @@ package com.example.project2historyapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -64,12 +65,12 @@ class SearchActivity : ComponentActivity() {
         val longitude = intent.getDoubleExtra("LONGITUDE", 0.0)
         val user = intent.getStringExtra("EMAIL").toString()
 
-        val info = locationName.split(", ")
+        val locationInfo = locationName.split(", ")
         val countryRef = Firebase.database.getReference("users/$user/countries")
-        val child = countryRef.child(info[2])
+        val child = countryRef.child(locationInfo[2])
         child.runTransaction(object: Transaction.Handler {
             override fun doTransaction(currentData: MutableData): Transaction.Result {
-                val data = currentData.getValue(LocationVisitCount::class.java) ?: LocationVisitCount(info[2], 0)
+                val data = currentData.getValue(LocationVisitCount::class.java) ?: LocationVisitCount(locationInfo[2], 0)
                 data.count++
                 currentData.value = data
                 return Transaction.success(currentData)
@@ -169,8 +170,8 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                 onClick = {
                     // Save location to database
                     val locationRef = Firebase.database.getReference("users/$user/locations")
-                    val child = locationRef.child(locationName)
-                    child.setValue(LocationData(latLng.latitude, latLng.longitude, startTime, endTime, locationName))
+                    val child = locationRef.push()
+                    child.setValue(LocationData(latLng.latitude, latLng.longitude, startTime, endTime, locationName, locationName.split(", ")[2], child.key.toString()))
                 }
             ) {
                 Text(context.getString(R.string.save_location_text))

@@ -138,7 +138,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                     },
                         onRemove = {
                             val dbRef = FirebaseDatabase.getInstance().getReference("users/$user/locations")
-                            dbRef.child(location.name).removeValue()
+                            dbRef.child(location.dbKey).removeValue()
                         })
                 }
             }
@@ -153,6 +153,7 @@ fun SavedLocations(user: String, modifier: Modifier = Modifier) {
                 colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
                 onClick = {
                     val intent = Intent(context, MainMenuActivity::class.java)
+                    intent.putExtra("EMAIL", user)
                     context.startActivity(intent)
                 }
             ) {
