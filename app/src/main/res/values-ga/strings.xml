@@ -33,5 +33,7 @@
     <string name="most_visited_country">An Tír Is Mó Ar Tugadh Cuairt Uirthi</string>
     <string name="most_saved_country">An Tír is Shábháil</string>
     <string name="saved_events_count">Comhaireamh Imeachta Sábháilte</string>
-    <string name="average_search_radius">Ga Meán Cuardach</string>
+    <string name="average_search_radius">Líneag Meán Cuardach</string>
+    <string name="set_radius_button">Socraigh Líneag</string>
+    <string name="radius_text">Líneag</string>
 </resources>

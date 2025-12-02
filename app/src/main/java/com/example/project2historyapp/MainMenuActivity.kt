@@ -14,6 +14,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -45,6 +47,8 @@ import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,6 +61,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -130,13 +135,17 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
         if (isGranted) {
             useCurrentLocation(context) { latLng ->
                 markerPosition = latLng
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 10.0f)
+                prefs.edit { putFloat("MapLatitude", latLng.latitude.toFloat()) }
+                prefs.edit { putFloat("MapLongitude", latLng.longitude.toFloat()) }
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, cameraPositionState.position.zoom)
             }
         }
     }
     var showMenu by remember { mutableStateOf(false) }
     val dateRangePickerState = rememberDateRangePickerState(yearRange = 1000..2025, initialSelectedStartDateMillis = prefs.getLong("START_DATE", System.currentTimeMillis()), initialSelectedEndDateMillis = prefs.getLong("END_DATE", System.currentTimeMillis()))
     var showDatePicker by remember { mutableStateOf(false) }
+    var showRadiusPicker by remember { mutableStateOf(false) }
+    var sliderPosition by remember { mutableFloatStateOf(prefs.getFloat("RADIUS", 100f)) }
 
     // Check if the location permission is granted, if not, request it
     LaunchedEffect(Unit) {
@@ -175,7 +184,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
 
                 Circle(
                     center = position,
-                    radius = 100000.0,
+                    radius = sliderPosition.toDouble() * 1000,
                     fillColor = Color(0.863f, 0.831f, 0.525f, 0.3f),
                     strokeWidth = 0.0f
                 )
@@ -240,6 +249,49 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                             Text(context.getString(R.string.set_date_button))
                         }
 
+                        Button(
+                            colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                            modifier = Modifier.padding(5.dp),
+                            shape = RectangleShape,
+                            onClick = {
+                                showRadiusPicker = true
+                            }
+                        ) {
+                            Text(context.getString(R.string.set_radius_button))
+                        }
+
+                        if (showRadiusPicker) {
+                            Dialog(
+                                onDismissRequest = {
+                                    showRadiusPicker = false
+                                }
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(0.8f)
+                                        .background(Color(0.2f, 0.243f, 0.384f, 1.0f)),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        "${context.getString(R.string.radius_text)}: ${"%.2f".format(sliderPosition)} km",
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(10.dp)
+                                    )
+                                    Slider(
+                                        modifier = Modifier.fillMaxWidth(0.75f)
+                                            .padding(10.dp),
+                                        value = sliderPosition,
+                                        onValueChange = { position ->
+                                            sliderPosition = position
+                                            prefs.edit { putFloat("RADIUS", position) }
+                                        },
+                                        valueRange = 10f..500f
+                                    )
+                                }
+                            }
+                        }
+
+
                         if (showDatePicker) {
 //                             Read dateRangePickerState.selectedStartDateMillis
                             DatePickerDialog(
@@ -294,7 +346,7 @@ fun MyMap(user: String, modifier: Modifier = Modifier) {
                 intent.putExtra("START_TIME", dateRangePickerState.selectedStartDateMillis)
                 intent.putExtra("END_TIME", dateRangePickerState.selectedEndDateMillis)
                 intent.putExtra("LOCATION_NAME", addressInfo)
-                intent.putExtra("RADIUS", 100)
+                intent.putExtra("RADIUS", sliderPosition.toInt())
                 context.startActivity(intent)
         }) {
             Text(context.getString(R.string.search_text))

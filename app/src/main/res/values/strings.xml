@@ -33,4 +33,6 @@
     <string name="most_saved_country">Most Saved Country</string>
     <string name="saved_events_count">Saved Event Count</string>
     <string name="average_search_radius">Average Search Radius</string>
+    <string name="set_radius_button">Set Radius</string>
+    <string name="radius_text">Radius</string>
 </resources>

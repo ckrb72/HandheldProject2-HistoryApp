@@ -96,8 +96,8 @@ class SearchActivity : ComponentActivity() {
             .runTransaction(object: Transaction.Handler {
             override fun doTransaction(currentData: MutableData): Transaction.Result {
                 val data = currentData.getValue(SearchData::class.java) ?: SearchData(0, 0.0)
-                data.count++
                 val radiusSum = data.avgRadius * data.count
+                data.count++
                 data.avgRadius = (radiusSum + radius) / data.count
                 currentData.value = data
                 return Transaction.success(currentData)
