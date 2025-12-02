@@ -154,6 +154,7 @@ fun Login(modifier: Modifier = Modifier) {
                     Switch(
                         onCheckedChange = { checked ->
                             saveLoginInfo = checked
+                            prefs.edit { putBoolean("saveLogin", saveLoginInfo) }
                         },
                         checked = saveLoginInfo,
                         modifier = Modifier.padding(5.dp, 0.dp, 5.dp, 0.dp)

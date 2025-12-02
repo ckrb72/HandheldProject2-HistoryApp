@@ -33,6 +33,7 @@ object QueryManager {
 
     suspend fun retrieveHistoricalEvents(location: LatLng, startTime: String, endTime: String, radius: Int): List<HistoricalEvent> {
 
+        // Query created after much pain playing around with https://query.wikidata.org/ and looking at the examples given
         val query: String = """
         SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time ?article WHERE {
         SERVICE wikibase:around {
@@ -70,152 +71,6 @@ object QueryManager {
         ORDER BY ASC(?time)
         LIMIT 50
         """.trimIndent()
-
-        /*
-                SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time ?article WHERE {
-            SERVICE wikibase:around {
-                ?event wdt:P625 ?location .
-                bd:serviceParam wikibase:center "Point(${location.longitude} ${location.latitude})"^^geo:wktLiteral ;
-                                wikibase:radius "$radius" ;
-                                wikibase:distance ?dist .
-            }
-            ?event wdt:P585 ?time.
-
-            FILTER EXISTS {
-                VALUES ?type {
-                wd:Q1190554    # event
-                wd:Q198        # historical event
-                wd:Q1656682    # significant event
-                wd:Q839954     # heritage site
-                wd:Q11707      # archaeological site
-                wd:Q575759     # historic site
-                wd:Q9259       # monument
-                wd:Q570116     # UNESCO World Heritage Site
-                }
-                ?event wdt:P31/wdt:P279* ?type .
-            }
-
-            OPTIONAL {
-                ?article schema:about ?event .
-                ?article schema:isPartOf <https://en.wikipedia.org/> .
-            }
-
-            SERVICE wikibase:label {
-                bd:serviceParam wikibase:language "en" .
-            }
-        } ORDER BY ASC(?time)
-        LIMIT 50
-         */
-
-        /*
-                    SELECT DISTINCT ?event ?eventLabel ?location ?distance ?time WHERE {
-              SERVICE wikibase:around {
-                ?event wdt:P625 ?location .
-                bd:serviceParam wikibase:center "Point(${location.longitude} ${location.latitude})"^^geo:wktLiteral .
-                bd:serviceParam wikibase:radius "$radius" .
-                bd:serviceParam wikibase:distance ?distance .
-              }
-
-
-              SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
-            }
-            ORDER BY ASC(?distance)
-            LIMIT 500
-
-         */
-
-        /*
-        SELECT DISTINCT ?event ?eventLabel ?location ?dist ?time WHERE {
-  # Berlin coordinates
-  wd:Q64 wdt:P625 ?berlinLoc .
-  SERVICE wikibase:around {
-    ?event wdt:P625 ?location .
-    bd:serviceParam wikibase:center ?berlinLoc ;
-                    wikibase:radius "100" ;
-                    wikibase:distance ?dist .
-  }
-  ?event wdt:P585 ?time.
-
-    FILTER EXISTS {
-    VALUES ?type {
-      wd:Q1190554    # event
-      wd:Q198        # historical event
-      wd:Q1656682    # significant event
-      wd:Q839954     # heritage site
-      wd:Q11707      # archaeological site
-      wd:Q575759     # historic site
-      wd:Q9259       # monument
-      wd:Q570116     # UNESCO World Heritage Site
-    }
-    ?event wdt:P31/wdt:P279* ?type .
-  }
-
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "en" .
-  }
-} ORDER BY ASC(?dist)
-LIMIT 500
-
-         */
-
-        /*
-                      # Broader categories
-              VALUES ?class {
-                wd:Q839954      # historic site
-                wd:Q271669      # archaeological site
-                wd:Q35509       # conflict / battle
-                wd:Q57821       # monument
-                wd:Q4989906     # heritage site
-                wd:Q570116      # historic district
-              }
-
-              ?event wdt:P31/wdt:P279* ?class .
-
-         */
-
-        /*
-       SELECT ?place ?placeLabel ?location ?dist ?start ?end ?time WHERE {
-  # Berlin coordinates
-  wd:Q64 wdt:P625 ?berlinLoc .
-  SERVICE wikibase:around {
-    ?place wdt:P625 ?location .
-    bd:serviceParam wikibase:center ?berlinLoc ;
-                    wikibase:radius "100" ;
-                    wikibase:distance ?dist .
-  }
-  # Is an airport
-  OPTIONAL { ?place wdt:P580 ?start. }
-  OPTIONAL { ?place wdt:P582 ?end. }
-  OPTIONAL { ?place wdt:P585 ?time. }
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "en" .
-  }
-} ORDER BY ASC(?dist)
-LIMIT 100
-         */
-
-
-        /*
-        SELECT DISTINCT ?place ?placeLabel ?location ?dist ?start ?end ?time WHERE {
-  # Berlin coordinates
-  wd:Q64 wdt:P625 ?berlinLoc .
-  SERVICE wikibase:around {
-    ?place wdt:P625 ?location .
-    bd:serviceParam wikibase:center ?berlinLoc ;
-                    wikibase:radius "100" ;
-                    wikibase:distance ?dist .
-  }
-  # Is an airport
-  OPTIONAL { ?place wdt:P580 ?start. }
-  OPTIONAL { ?place wdt:P582 ?end. }
-  ?place wdt:P585 ?time.
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "en" .
-  }
-} ORDER BY ASC(?dist)
-LIMIT 100
-
-         */
 
         val request = Request.Builder()
             .url("https://query.wikidata.org/sparql?format=json&query=${URLEncoder.encode(query, "UTF-8")}")
@@ -274,6 +129,7 @@ LIMIT 100
         return LatLng(lat, lon)
     }
 
+    // Convert date from WikiData into date that can be displayed without hurting eyes
     fun formatDate(date: String): String {
         val parser = DateTimeFormatterBuilder()
             .appendValue(ChronoField.YEAR, 1, 10, SignStyle.NORMAL)
