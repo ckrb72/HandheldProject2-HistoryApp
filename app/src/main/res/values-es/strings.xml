@@ -25,4 +25,5 @@
     <string name="search_text">Buscar</string>
     <string name="event_text">Eventos cerca</string>
     <string name="no_events_text">No Se Encontraron Eventos…</string>
+    <string name="save_text">Ahorrar</string>
 </resources>

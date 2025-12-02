@@ -192,6 +192,8 @@ fun LocationCard(savedLocation: LocationData, modifier: Modifier = Modifier, onC
             Text("${savedLocation.latitude} ${savedLocation.longitude}")
             Text("${savedLocation.start} ${savedLocation.end}")
             Button(
+                shape = RectangleShape,
+                colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
                 onClick = onRemove
             ) {
                 Text("Remove")

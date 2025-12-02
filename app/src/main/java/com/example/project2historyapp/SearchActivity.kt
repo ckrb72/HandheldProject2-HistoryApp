@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -127,7 +128,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
         Column(
             modifier = Modifier.fillMaxWidth(0.8f)
                 .fillMaxHeight(0.9f)
-                .background(Color(1.0f, 1.0f, 1.0f, 0.75f)),
+                .background(Color(0.906f, 0.843f, 0.639f, 0.659f)),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -141,7 +142,17 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                     .padding(10.dp, 0.dp, 10.dp, 30.dp)
             ) {
                 items(eventList) { event ->
-                    EventCard(event, onClick = { /*TODO*/ })
+                    EventCard(
+                        event,
+                        onClick = {
+                            event.article.let {
+                                Log.d("ARTICLE", "ARTICLE FOUND")
+                            }
+                        },
+                        onSave = {
+
+                        }
+                    )
                 }
             }
         }
@@ -199,17 +210,74 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
 }
 
 @Composable
-fun EventCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun EventCard(savedLocation: HistoricalEvent, modifier: Modifier = Modifier, onClick: () -> Unit, onSave: () -> Unit) {
+    val context = LocalContext.current
+
     Card(
         modifier = modifier.fillMaxSize()
             .padding(10.dp),
         shape = RectangleShape,
+        colors = CardColors(Color(0.686f, 0.62f, 0.42f, 1.0f), Color.White, Color.White, Color.White),
         onClick = onClick
     ) {
-        Column {
-            Text(savedLocation.name)
-            Text(savedLocation.date)
-            Text("${savedLocation.location.latitude} ${savedLocation.location.longitude}")
+
+        Row(
+            modifier = Modifier.fillMaxSize()
+                .padding(10.dp)
+        ){
+            Column(
+                modifier = Modifier.fillMaxWidth(0.70f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(savedLocation.name)
+                Text(savedLocation.date, fontSize = 12.sp)
+                Text("${savedLocation.location.latitude} ${savedLocation.location.longitude}", fontSize = 12.sp)
+            }
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .fillMaxHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxHeight(0.30f)
+                        .fillMaxWidth(),
+                    shape = RectangleShape,
+                    colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+                    onClick = onSave
+                ) {
+                    Text(
+                        context.getString(R.string.save_text),
+                        textAlign = TextAlign.Center,
+                        fontSize = 8.sp)
+                }
+
+//                Button(
+//                    modifier = Modifier.fillMaxHeight(0.30f)
+//                        .fillMaxWidth(),
+//                    shape = RectangleShape,
+//                    colors = ButtonColors(Color(0.616f, 0.494f, 0.337f, 1.0f), Color.White, Color(0.204f, 0.408f, 0.357f, 0.827f), Color.LightGray),
+//                    onClick = {
+//
+//                    }
+//                ) {
+//                    Text("View", textAlign = TextAlign.Center, fontSize = 10.sp)
+//                }
+
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EventCardPreview() {
+    Project2HistoryAppTheme {
+        EventCard(HistoricalEvent("Test", "Test", LatLng(0.0, 0.0), "Test"), onClick = {}) {
+
         }
     }
 }
