@@ -200,7 +200,7 @@ fun Stats(user: String, modifier: Modifier = Modifier) {
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    "${context.getString(R.string.average_search_radius)}: ${searchInfo.avgRadius}",
+                    "${context.getString(R.string.average_search_radius)}: ${"%.2f".format(searchInfo.avgRadius)}",
                     color = Color(0.267f, 0.165f, 0.02f, 1.0f),
                     textAlign = TextAlign.Center
                 )

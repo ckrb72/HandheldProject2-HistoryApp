@@ -110,7 +110,7 @@ fun SavedEvents(user: String, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                context.getString(R.string.saved_locations_button),
+                context.getString(R.string.saved_events_button),
                 fontSize = 25.sp,
                 modifier = Modifier.padding(20.dp),
                 color = Color(0.267f, 0.165f, 0.02f, 1.0f)
