@@ -37,4 +37,6 @@
     <string name="set_radius_button">Establecer Radio</string>
     <string name="radius_text">Radio</string>
     <string name="saved_events_button">Eventos Guardados</string>
+    <string name="no_saved_events">No Hay Eventos Guardados…</string>
+    <string name="title_activity_saved_events">SavedEventsActivity</string>
 </resources>

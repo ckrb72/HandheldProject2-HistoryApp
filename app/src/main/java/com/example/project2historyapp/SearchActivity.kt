@@ -167,7 +167,7 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(20.dp),
                 textAlign = TextAlign.Center,
-                color = Color.White
+                color = Color(0.267f, 0.165f, 0.02f, 1.0f),
             )
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
@@ -186,7 +186,8 @@ fun LocationSearch(user: String, latLng: LatLng, startTime: Long, endTime: Long,
                         },
                         onSave = {
                             val dbRef = Firebase.database.getReference("users/$user/events")
-                            val child = dbRef.child(event.name)
+                            val child = dbRef.push()
+                            event.dbKey = child.key.toString()
                             child.setValue(event)
                         }
                     )

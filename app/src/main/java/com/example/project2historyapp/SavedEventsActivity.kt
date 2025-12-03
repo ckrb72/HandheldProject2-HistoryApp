@@ -133,7 +133,7 @@ fun SavedEvents(user: String, modifier: Modifier = Modifier) {
                         },
                         onRemove = {
                             val dbRef = FirebaseDatabase.getInstance().getReference("users/$user/events")
-                            dbRef.child(event.name).removeValue()
+                            dbRef.child(event.dbKey).removeValue()
                         }
                     )
                 }
@@ -160,7 +160,7 @@ fun SavedEvents(user: String, modifier: Modifier = Modifier) {
 
         if (eventList.isEmpty()) {
             Text(
-                context.getString(R.string.no_saved_locations_text),
+                context.getString(R.string.no_saved_events),
                 modifier = Modifier.align(Alignment.Center),
                 fontSize = 20.sp,
                 color = Color(0.267f, 0.165f, 0.02f, 1.0f)

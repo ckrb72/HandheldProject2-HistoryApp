@@ -37,4 +37,6 @@
     <string name="set_radius_button">Socraigh Líneag</string>
     <string name="radius_text">Líneag</string>
     <string name="saved_events_button">Imeachtaí Sábháilte</string>
+    <string name="no_saved_events">Gan Imeachtaí Sábháilte…</string>
+    <string name="title_activity_saved_events">SavedEventsActivity</string>
 </resources>

@@ -37,4 +37,5 @@
     <string name="radius_text">Radius</string>
     <string name="title_activity_saved_events">SavedEventsActivity</string>
     <string name="saved_events_button">Saved Events</string>
+    <string name="no_saved_events">No Saved Events…</string>
 </resources>
